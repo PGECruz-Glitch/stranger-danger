@@ -1,0 +1,2054 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#120E1C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Stranger-danger training game for Sebastian. Six places, six strangers, one phone he has to dial from memory.">
+<style>
+  /* standalone shell — matches the hosted build's page reset */
+  :root{
+    color-scheme:dark;
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  html,body{height:100%}
+  body{margin:0; background:#120E1C; overscroll-behavior:none}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+  /* handhelds: no text selection, no callouts, no pinch zoom artefacts */
+  *{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+</style>
+</head>
+<body>
+<title>Ligtas si Sebastian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:ital,wght@0,400;0,700;0,900;1,700&family=DM+Mono:wght@500&display=swap">
+
+<style>
+:root{
+  --ink:#120E1C;
+  --ink2:#1C1530;
+  --panel:#241C3A;
+  --panel2:#2F2550;
+  --bone:#FFEEDA;
+  --mango:#FFB02E;
+  --calamansi:#6FD44E;
+  --sili:#FF3B3B;
+  --sky:#38C6F4;
+  --grey:#6B6383;
+  --edge:#05030A;
+
+  --disp:"Luckiest Guy", "Arial Black", Impact, Haettenschweiler, "Franklin Gothic Bold", sans-serif;
+  --body:"Nunito", "Trebuchet MS", "Segoe UI", Roboto, system-ui, sans-serif;
+  --mono:"DM Mono", ui-monospace, "SF Mono", Menlo, "Courier New", monospace;
+
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--body);
+  background:var(--ink);
+  color:var(--bone);
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+/* ---------- shell ---------- */
+#app{
+  position:relative;
+  height:100%;
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(circle at 18% 12%, #2A1F47 0%, transparent 55%),
+    radial-gradient(circle at 82% 88%, #1B2B44 0%, transparent 55%),
+    var(--ink);
+  overflow:hidden;
+}
+.halftone{
+  position:absolute; inset:0; pointer-events:none; z-index:1;
+  background-image:radial-gradient(rgba(255,238,218,.16) 1px, transparent 1px);
+  background-size:7px 7px;
+  opacity:.28;
+  mix-blend-mode:overlay;
+}
+
+/* ---------- title screen ---------- */
+#title{
+  position:absolute; inset:0; z-index:40;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:24px 20px;
+  background:
+    radial-gradient(circle at 50% 30%, #3A2360 0%, #140F22 62%, #08060F 100%);
+  text-align:center;
+  overflow-y:auto;
+}
+#title .burst{
+  position:absolute; width:150%; aspect-ratio:1; top:-18%; left:-25%;
+  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,176,46,.11) 0deg 7deg, transparent 7deg 14deg);
+  animation:spin 70s linear infinite; pointer-events:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#title h1{
+  font-family:var(--disp); font-size:clamp(38px,11vw,72px); line-height:.92;
+  margin:0; color:var(--mango); position:relative;
+  text-shadow:4px 4px 0 var(--edge), 8px 8px 0 rgba(255,59,59,.55);
+  letter-spacing:.5px; text-wrap:balance;
+}
+#title .sub{
+  font-weight:900; letter-spacing:.22em; text-transform:uppercase;
+  font-size:clamp(10px,2.6vw,13px); color:var(--sky); position:relative;
+}
+#title .blurb{
+  max-width:44ch; font-size:15px; line-height:1.55; color:#CFC4E0; position:relative;
+  margin:2px 0 6px;
+}
+#title .rules{
+  position:relative; text-align:left; max-width:40ch; width:100%;
+  background:rgba(36,28,58,.8); border:3px solid var(--edge); border-radius:14px;
+  padding:14px 16px; box-shadow:5px 5px 0 var(--edge);
+}
+#title .rules b{font-family:var(--disp); color:var(--mango); letter-spacing:.5px; font-size:15px}
+#title .rules ul{margin:8px 0 0; padding-left:18px; font-size:13.5px; line-height:1.65; color:#E4DAF2}
+#title .rules li{margin-bottom:5px}
+#title .rules li::marker{color:var(--calamansi)}
+
+.bigbtn{
+  position:relative;
+  font-family:var(--disp); font-size:22px; letter-spacing:1px;
+  background:var(--mango); color:var(--edge);
+  padding:14px 34px; border-radius:999px;
+  border:4px solid var(--edge); box-shadow:0 6px 0 var(--edge);
+  transition:transform .08s, box-shadow .08s;
+}
+.bigbtn:active{transform:translateY(5px); box-shadow:0 1px 0 var(--edge)}
+.bigbtn.ghost{background:var(--panel2); color:var(--bone)}
+
+/* ---------- HUD ---------- */
+#hud{
+  position:relative; z-index:6;
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px 8px;
+  border-bottom:3px solid var(--edge);
+  background:linear-gradient(180deg,#1E1733,#160F28);
+  flex:0 0 auto;
+}
+.chip{
+  font-family:var(--disp); font-size:12.5px; letter-spacing:.9px;
+  background:var(--mango); color:var(--edge);
+  padding:5px 11px 3px; border-radius:6px; border:2.5px solid var(--edge);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:47%;
+}
+.meter{display:flex; gap:4px; margin-left:auto; align-items:center}
+.meter .lbl{
+  font-size:9px; font-weight:900; letter-spacing:.16em; color:var(--grey);
+  text-transform:uppercase; margin-right:3px;
+}
+.bar{
+  width:17px; height:13px; border:2.5px solid var(--edge); border-radius:3px;
+  background:#3A3157;
+}
+.bar.on{background:var(--calamansi)}
+.meter[data-t="2"] .bar.on{background:var(--mango)}
+.meter[data-t="3"] .bar.on{background:#FF7A2E}
+.meter[data-t="4"] .bar.on{background:var(--sili); animation:throb .7s infinite}
+@keyframes throb{50%{opacity:.35}}
+.iconbtn{
+  width:32px; height:32px; display:grid; place-items:center;
+  border:2.5px solid var(--edge); border-radius:8px; background:var(--panel2);
+  flex:0 0 auto;
+}
+.iconbtn svg{width:16px; height:16px; fill:none; stroke:var(--bone); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+#sndbtn.off{background:#4A2C3C}
+#sndbtn.off svg{stroke:#C08A9A}
+#sndbtn.needtap{background:var(--mango); animation:tapme .9s infinite}
+#sndbtn.needtap svg{stroke:var(--edge)}
+@keyframes tapme{50%{box-shadow:0 0 0 5px rgba(255,176,46,.35)}}
+
+/* ---------- scene ---------- */
+#stagewrap{
+  position:relative; z-index:2;
+  flex:1 1 auto; min-height:0;
+  border-bottom:3px solid var(--edge);
+  overflow:hidden;
+  background:#0C0916;
+}
+#scene{position:absolute; inset:0; width:100%; height:100%; display:block}
+#flash{
+  position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:7;
+}
+.sidelab{
+  position:absolute; top:10px; z-index:6; display:none;
+  font-family:var(--disp); font-size:11.5px; letter-spacing:.9px; line-height:1;
+  padding:5px 9px 3px; border:2.5px solid var(--edge); border-radius:6px;
+  box-shadow:3px 3px 0 var(--edge);
+}
+.sidelab span{
+  display:block; font-family:var(--body); font-weight:900; font-size:8px;
+  letter-spacing:.09em; text-transform:uppercase; opacity:.72; margin-top:2px;
+}
+#stagewrap.split .sidelab{display:block}
+#labIn{left:10px; background:var(--mango); color:var(--edge)}
+#labOut{right:10px; background:var(--sky); color:var(--edge); text-align:right}
+#vignette{
+  position:absolute; inset:0; pointer-events:none; z-index:4;
+  box-shadow:inset 0 0 90px 24px rgba(5,3,10,.85);
+  transition:box-shadow .5s;
+}
+#stagewrap[data-t="3"] #vignette{box-shadow:inset 0 0 95px 26px rgba(70,5,12,.68)}
+#stagewrap[data-t="4"] #vignette{box-shadow:inset 0 0 110px 38px rgba(135,8,14,.74)}
+#stagewrap[data-t="4"]{animation:jitter .18s infinite}
+@keyframes jitter{
+  0%,100%{transform:translate(0,0)} 25%{transform:translate(-1.2px,.8px)}
+  50%{transform:translate(1px,-.9px)} 75%{transform:translate(.7px,1px)}
+}
+
+/* ---------- panel (dialogue + choices) ---------- */
+#panel{
+  position:relative; z-index:6;
+  display:flex; flex-direction:column; min-height:0; flex:0 0 auto;
+  background:var(--ink);
+}
+
+/* ---------- dialogue ---------- */
+#talk{
+  position:relative; z-index:6; flex:0 0 auto;
+  padding:12px 14px 4px;
+  background:linear-gradient(180deg,#171029,#120E1C);
+}
+#balloon{
+  position:relative;
+  background:var(--bone); color:#17121F;
+  border:3.5px solid var(--edge); border-radius:16px;
+  padding:11px 14px 12px;
+  box-shadow:5px 5px 0 var(--edge);
+}
+#balloon::after{
+  content:""; position:absolute; left:26px; bottom:-15px;
+  border:8px solid transparent; border-top-color:var(--edge); border-bottom:0;
+  filter:drop-shadow(0 -3px 0 var(--edge));
+}
+#who{
+  font-family:var(--disp); font-size:13px; letter-spacing:.8px;
+  color:#8E2A2A; margin-bottom:3px;
+}
+#who.narr{color:#3C5E8E}
+#say{margin:0; font-size:16px; line-height:1.45; font-weight:700; text-wrap:pretty}
+#say em{font-style:italic; color:#5B4A72; font-weight:700}
+
+/* ---------- choices ---------- */
+#choices{
+  position:relative; z-index:6; flex:0 0 auto;
+  display:flex; flex-direction:column; gap:7px;
+  padding:14px 14px calc(12px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);
+}
+.choice{
+  display:flex; align-items:center; gap:10px; text-align:left; width:100%;
+  background:var(--panel); color:var(--bone);
+  border:3px solid var(--edge); border-radius:12px;
+  padding:10px 13px; font-size:14.5px; font-weight:700; line-height:1.35;
+  box-shadow:0 4px 0 var(--edge);
+  transition:transform .07s, box-shadow .07s, background .12s;
+}
+.choice:hover{background:var(--panel2)}
+.choice:active{transform:translateY(3px); box-shadow:0 1px 0 var(--edge)}
+.choice .tag{
+  flex:0 0 auto; width:26px; height:26px; border-radius:7px;
+  display:grid; place-items:center; border:2.5px solid var(--edge);
+  font-family:var(--disp); font-size:13px; color:var(--edge); padding-top:2px;
+}
+.choice[data-k="safe"] .tag,
+.choice[data-k="stall"] .tag,
+.choice[data-k="bad"] .tag{background:#B7ABCB}
+.choice[data-k="phone"]{background:linear-gradient(180deg,#114E66,#0C3A4E); border-color:var(--edge)}
+.choice[data-k="phone"] .tag{background:var(--sky)}
+.choice[data-k="phone"].urgent{animation:ring 1s infinite}
+@keyframes ring{50%{box-shadow:0 4px 0 var(--edge), 0 0 0 5px rgba(56,198,244,.28)}}
+
+#timerwrap{
+  display:none; align-items:center; gap:9px;
+  padding:0 14px 8px; position:relative; z-index:6; background:var(--ink);
+}
+#timerwrap.on{display:flex}
+#timerbar{
+  flex:1; height:12px; border:2.5px solid var(--edge); border-radius:999px;
+  background:#33244A; overflow:hidden;
+}
+#timerfill{height:100%; width:100%; background:var(--sili); transition:width .2s linear}
+#timertxt{
+  font-family:var(--disp); font-size:12px; letter-spacing:.7px; color:var(--sili);
+}
+
+/* ---------- phone ---------- */
+#phone{
+  position:absolute; inset:0; z-index:60;
+  background:rgba(4,3,9,.88);
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  backdrop-filter:blur(3px);
+}
+#phone[hidden]{display:none!important}
+.handset{
+  width:100%; max-width:300px;
+  background:linear-gradient(180deg,#2B2248,#1B1430);
+  border:4px solid var(--edge); border-radius:26px;
+  padding:14px; box-shadow:8px 8px 0 var(--edge);
+  animation:pop .18s ease-out;
+}
+@keyframes pop{from{transform:scale(.9); opacity:0}}
+.screen{
+  background:#0B1418; border:3px solid var(--edge); border-radius:12px;
+  padding:10px 12px; min-height:74px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4px;
+  margin-bottom:11px;
+}
+#dialed{
+  font-family:var(--mono); font-size:22px; letter-spacing:2px; color:var(--calamansi);
+  min-height:27px; word-break:break-all; text-align:center;
+}
+#dialed .ph{color:#3E6A50; font-family:var(--body); font-weight:900; font-size:13px; letter-spacing:.08em}
+#phmsg{font-size:11.5px; font-weight:700; color:#8FA8B4; text-align:center; line-height:1.4}
+#phmsg.warn{color:var(--mango)}
+#phmsg.bad{color:var(--sili)}
+.keys{display:grid; grid-template-columns:repeat(3,1fr); gap:7px}
+.key{
+  aspect-ratio:1/.62; border:3px solid var(--edge); border-radius:11px;
+  background:var(--panel2); font-family:var(--mono); font-size:20px; color:var(--bone);
+  box-shadow:0 4px 0 var(--edge); display:grid; place-items:center;
+  transition:transform .06s, box-shadow .06s;
+}
+.key:active{transform:translateY(3px); box-shadow:0 1px 0 var(--edge)}
+.key.act{background:var(--calamansi); color:var(--edge)}
+.key.del{background:#6B3A3A; font-size:12px; font-family:var(--disp); letter-spacing:.5px}
+.key.sos{background:var(--sili); color:#fff; font-family:var(--disp); font-size:14px}
+.phrow{display:flex; gap:7px; margin-top:9px}
+.phrow button{
+  flex:1; border:3px solid var(--edge); border-radius:11px; padding:9px 0;
+  font-family:var(--disp); font-size:14px; letter-spacing:.6px;
+  box-shadow:0 4px 0 var(--edge);
+}
+#callbtn{background:var(--calamansi); color:var(--edge)}
+#hintbtn{background:var(--panel2); color:var(--bone); font-size:12px; flex:0 0 78px}
+#hangbtn{background:#4A3550; color:var(--bone); font-size:12px}
+.phrow button:active{transform:translateY(3px); box-shadow:0 1px 0 var(--edge)}
+
+/* ---------- result card ---------- */
+#result{
+  position:absolute; inset:0; z-index:70;
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  background:rgba(4,3,9,.93); overflow-y:auto;
+}
+#result[hidden]{display:none!important}
+.card{
+  width:100%; max-width:400px;
+  background:var(--panel); border:4px solid var(--edge); border-radius:20px;
+  padding:20px 18px; box-shadow:8px 8px 0 var(--edge);
+  animation:pop .22s ease-out; text-align:center;
+}
+.card .kicker{
+  font-family:var(--disp); font-size:clamp(24px,7vw,34px); line-height:1;
+  margin:0 0 10px; text-shadow:3px 3px 0 var(--edge); text-wrap:balance;
+}
+.card.good .kicker{color:var(--calamansi)}
+.card.teach .kicker{color:var(--sili)}
+.card .quote{
+  background:#1A1430; border-left:5px solid var(--mango); border-radius:8px;
+  padding:9px 12px; text-align:left; font-size:14px; line-height:1.5; margin:0 0 12px;
+  color:#E7DDF5;
+}
+.card .quote b{color:var(--mango); font-family:var(--disp); letter-spacing:.5px; font-size:13px; display:block; margin-bottom:3px}
+.card .lesson{font-size:14.5px; line-height:1.55; margin:0 0 15px; color:#EFE6FA; text-align:left}
+.card .lesson strong{color:var(--mango)}
+.badges{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:14px}
+.bdg{
+  font-size:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase;
+  padding:4px 8px; border-radius:999px; border:2.5px solid var(--edge);
+  background:#3A3157; color:#9A90B5;
+}
+.bdg.won{background:var(--calamansi); color:var(--edge)}
+
+/* ---------- lose sequence ---------- */
+#lose{
+  position:absolute; inset:0; z-index:80;
+  background:#000; overflow:hidden;
+}
+#lose[hidden]{display:none!important}
+#monster{
+  position:absolute; left:50%; top:46%;
+  width:min(74vw,330px); transform:translate(-50%,-50%) scale(.5);
+  opacity:0;
+  filter:drop-shadow(0 0 26px rgba(255,20,20,.55));
+}
+#monster.in{animation:reveal .5s ease-out forwards}
+@keyframes reveal{to{opacity:1; transform:translate(-50%,-50%) scale(1)}}
+#monster.shown{opacity:1; transform:translate(-50%,-50%) scale(1)}
+#monster.lunge{animation:lunge .42s cubic-bezier(.2,.9,.3,1) forwards}
+@keyframes lunge{
+  0%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+  55%{opacity:1; transform:translate(-50%,-50%) scale(4.2) rotate(-2deg)}
+  70%{transform:translate(-50%,-50%) scale(3.9) rotate(2deg)}
+  100%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+}
+#lose.shake{animation:bigshake .1s infinite}
+@keyframes bigshake{
+  0%{transform:translate(0,0)} 20%{transform:translate(-9px,5px)}
+  40%{transform:translate(8px,-7px)} 60%{transform:translate(-6px,-5px)}
+  80%{transform:translate(7px,6px)} 100%{transform:translate(0,0)}
+}
+#bolt{position:absolute; inset:0; opacity:0; pointer-events:none}
+#cracks{position:absolute; inset:0; pointer-events:none}
+#cracks path{
+  stroke:#EFF4FF; fill:none; stroke-linecap:round;
+  filter:drop-shadow(0 0 3px rgba(150,200,255,.9));
+}
+#shatter{
+  position:absolute; inset:0; opacity:0; pointer-events:none;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.14) 0 2px, transparent 2px 60px),
+    linear-gradient(-35deg, rgba(255,255,255,.12) 0 2px, transparent 2px 48px);
+}
+#abducted{
+  position:absolute; inset:0; display:none;
+  flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  padding:22px; text-align:center;
+}
+#abducted.on{display:flex}
+#abducted::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 55%, rgba(0,0,0,.8) 0%, rgba(0,0,0,.5) 45%, transparent 80%);
+}
+#abducted h2, #abducted p{position:relative}
+#abducted h2{
+  font-family:var(--disp); font-size:clamp(28px,9.5vw,60px); line-height:.95; margin:0;
+  color:#FF2020; letter-spacing:1px;
+  -webkit-text-stroke:2px #1A0000;
+  paint-order:stroke fill;
+  text-shadow:0 0 26px rgba(255,20,20,.9), 4px 4px 0 #2A0000;
+  animation:glitch .18s infinite; text-wrap:balance;
+}
+@keyframes glitch{
+  0%{transform:translate(0,0)} 33%{transform:translate(-3px,2px) skewX(-2deg)}
+  66%{transform:translate(3px,-2px) skewX(2deg)} 100%{transform:translate(0,0)}
+}
+#abducted p{color:#FF8080; font-weight:900; letter-spacing:.2em; font-size:11px; margin:0; text-transform:uppercase}
+
+/* ---------- settings ---------- */
+#settings{
+  position:absolute; inset:0; z-index:75;
+  background:rgba(4,3,9,.92); display:flex; align-items:center; justify-content:center; padding:20px;
+  overflow-y:auto;
+}
+#settings[hidden]{display:none!important}
+.setrow{
+  display:flex; align-items:center; gap:10px; justify-content:space-between;
+  padding:9px 0; border-bottom:2px solid #372C56; text-align:left;
+}
+.setrow:last-of-type{border-bottom:0}
+.setrow .nm{font-weight:900; font-size:14px}
+.setrow .ds{font-size:11.5px; color:#9A90B5; line-height:1.4; font-weight:700}
+.tgl{
+  flex:0 0 auto; width:56px; height:30px; border-radius:999px; border:3px solid var(--edge);
+  background:#3A3157; position:relative; transition:background .15s;
+}
+.tgl::after{
+  content:""; position:absolute; top:2px; left:2px; width:20px; height:20px;
+  border-radius:50%; background:var(--bone); transition:transform .15s;
+}
+.tgl[aria-checked="true"]{background:var(--calamansi)}
+.tgl[aria-checked="true"]::after{transform:translateX(26px)}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--sky); outline-offset:2px}
+
+/* ---------- D-pad focus ring ---------- */
+.sel{outline:3px solid #FFE07A !important; outline-offset:2px}
+.choice.sel{background:var(--panel2)}
+.choice[data-k="phone"].sel{background:linear-gradient(180deg,#1A6E8E,#0F4A62)}
+.key.sel{background:var(--sky); color:var(--edge)}
+.key.del.sel{background:#C4685E; color:var(--edge)}
+.key.sos.sel{background:#FF6B6B}
+
+#padhint{
+  font-size:9.5px; font-weight:900; letter-spacing:.1em; text-transform:uppercase;
+  color:#8E84A8; text-align:center; margin:2px 0 0; line-height:1.5; position:relative;
+}
+#padhint b{color:var(--mango)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important}
+}
+
+/* =========================================================
+   HANDHELD / LANDSCAPE — Anbernic 640x480, 720x480, 960x544,
+   1280x720, and any wide window. Scene left, talk right.
+   ========================================================= */
+@media (min-aspect-ratio:5/4){
+  #app{
+    max-width:1180px;
+    display:grid;
+    grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr);
+    grid-template-areas:"hud hud" "scene panel";
+  }
+  #hud{grid-area:hud}
+  #stagewrap{grid-area:scene; border-right:3px solid var(--edge); border-bottom:0}
+  #panel{
+    grid-area:panel; flex:1 1 auto;
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  }
+  #talk{background:var(--ink)}
+  #choices{flex:0 0 auto}
+}
+
+/* small handheld screens: 640x480 and 960x544 */
+@media (max-height:600px){
+  #say{font-size:13.5px; line-height:1.38}
+  #who{font-size:11px}
+  #balloon{padding:8px 11px 9px; border-width:3px; box-shadow:4px 4px 0 var(--edge)}
+  #talk{padding:9px 11px 3px}
+  .choice{font-size:12.5px; padding:7px 10px; border-width:2.5px; gap:8px; box-shadow:0 3px 0 var(--edge)}
+  .choice .tag{width:22px; height:22px; font-size:11px; border-width:2px}
+  #choices{gap:5px; padding:10px 11px calc(9px + env(safe-area-inset-bottom,0px))}
+  #hud{padding:6px 10px 5px; gap:7px}
+  .chip{font-size:10.5px; padding:4px 8px 2px; border-width:2px}
+  .iconbtn{width:27px; height:27px; border-width:2px}
+  .iconbtn svg{width:14px; height:14px}
+  .bar{width:13px; height:10px; border-width:2px}
+  .meter .lbl{font-size:8px}
+  .sidelab{font-size:10px; padding:4px 7px 2px; top:7px; border-width:2px}
+  .sidelab span{font-size:7px}
+  #labIn{left:7px} #labOut{right:7px}
+  #timerwrap{padding:0 11px 6px}
+  #timerbar{height:10px}
+  #timertxt{font-size:10.5px}
+  .handset{max-width:252px; padding:10px; border-radius:20px}
+  .screen{min-height:50px; padding:7px 9px; margin-bottom:8px}
+  #dialed{font-size:17px; min-height:21px}
+  #phmsg{font-size:10px}
+  .keys{gap:5px}
+  .key{aspect-ratio:1/.52; font-size:16px; border-width:2.5px; border-radius:9px; box-shadow:0 3px 0 var(--edge)}
+  .key.del{font-size:10px} .key.sos{font-size:12px}
+  .phrow{margin-top:7px; gap:5px}
+  .phrow button{padding:7px 0; font-size:11.5px; border-width:2.5px}
+  #hintbtn{flex:1}
+  .card{padding:14px 13px; border-radius:16px}
+  .card .kicker{font-size:clamp(20px,5.4vw,26px); margin-bottom:8px}
+  .card .lesson{font-size:12.5px; margin-bottom:11px}
+  .card .quote{font-size:12px; padding:8px 10px; margin-bottom:9px}
+  .card .quote b{font-size:11px}
+  .bdg{font-size:9px; padding:3px 6px}
+  .bigbtn{font-size:16px; padding:10px 24px; border-width:3px}
+  .setrow{padding:6px 0}
+  .setrow .nm{font-size:12.5px}
+  .setrow .ds{font-size:10.5px}
+  .tgl{width:48px; height:26px}
+  .tgl::after{width:16px; height:16px}
+  .tgl[aria-checked="true"]::after{transform:translateX(22px)}
+  #title{gap:9px; padding:14px}
+  #title h1{font-size:clamp(28px,7.5vw,46px)}
+  #title .blurb{font-size:12.5px; margin:0 0 2px}
+  #title .rules{padding:10px 12px}
+  #title .rules ul{font-size:11.5px; line-height:1.5}
+  #title .sub{font-size:9.5px}
+}
+
+/* very small handhelds: 480x320 */
+@media (max-height:400px){
+  #say{font-size:12px; line-height:1.34}
+  .choice{font-size:11px; padding:5px 8px; box-shadow:0 2px 0 var(--edge)}
+  .choice .tag{width:19px; height:19px; font-size:10px}
+  #choices{gap:4px; padding:7px 9px}
+  #talk{padding:7px 9px 2px}
+  #balloon{padding:6px 9px 7px}
+  #hud{padding:4px 8px 3px}
+  .handset{max-width:216px; padding:8px}
+  .key{aspect-ratio:1/.46; font-size:14px}
+  #title .rules{display:none}
+  #title h1{font-size:clamp(24px,7vw,36px)}
+  #title .blurb{font-size:11px}
+}
+</style>
+
+<div id="app">
+  <div class="halftone"></div>
+
+  <!-- ============ TITLE ============ -->
+  <section id="title">
+    <div class="burst"></div>
+    <div class="sub">Stranger Danger Training</div>
+    <h1>Ligtas si Sebastian</h1>
+    <p class="blurb">Six places. Six strangers. Each one has a brand-new reason why you should come with them — and not everyone who is nice is good.</p>
+    <div class="rules">
+      <b>The Three Rules</b>
+      <ul>
+        <li><b>DON'T</b> go with them, don't open the door, don't take anything.</li>
+        <li><b>ASK</b> Mommy or Daddy first. Every single time.</li>
+        <li><b>CALL</b> — pick up the phone. You know the numbers by heart.</li>
+      </ul>
+    </div>
+    <button class="bigbtn" id="startbtn">START</button>
+    <button class="bigbtn ghost" id="parentbtn" style="font-size:13px;padding:9px 20px">For Parents</button>
+    <p id="padhint"><b>D-PAD</b> or arrows to choose · <b>A</b> / Enter to pick · <b>B</b> to go back · <b>START</b> for settings</p>
+  </section>
+
+  <!-- ============ HUD ============ -->
+  <header id="hud" hidden>
+    <div class="chip" id="stagechip">HOUSE</div>
+    <div class="meter" id="meter" data-t="1">
+      <span class="lbl">Danger</span>
+      <div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <button class="iconbtn" id="sndbtn" aria-label="Sound"></button>
+    <button class="iconbtn" id="setbtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <!-- ============ SCENE ============ -->
+  <div id="stagewrap" hidden data-t="1">
+    <svg id="scene" viewBox="0 -80 400 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+    <div class="sidelab" id="labIn">INSIDE<span>you are here</span></div>
+    <div class="sidelab" id="labOut">OUTSIDE<span>the stranger</span></div>
+    <div id="vignette"></div>
+    <div id="flash"></div>
+  </div>
+
+  <!-- ============ PANEL ============ -->
+  <div id="panel" hidden>
+    <div id="talk">
+      <div id="balloon">
+        <div id="who">TITA BABY</div>
+        <p id="say" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div id="timerwrap">
+      <div id="timerbar"><div id="timerfill"></div></div>
+      <span id="timertxt">HURRY!</span>
+    </div>
+
+    <div id="choices"></div>
+  </div>
+
+  <!-- ============ PHONE ============ -->
+  <div id="phone" hidden>
+    <div class="handset">
+      <div class="screen">
+        <div id="dialed"><span class="ph">Dial the number</span></div>
+        <div id="phmsg">You know these by heart. Who are you calling?</div>
+      </div>
+      <div class="keys" id="keys"></div>
+      <div class="phrow">
+        <button id="hintbtn">CLUE</button>
+        <button id="callbtn">CALL</button>
+        <button id="hangbtn">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULT ============ -->
+  <div id="result" hidden></div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div id="settings" hidden>
+    <div class="card" style="text-align:left">
+      <h2 class="kicker" style="color:var(--mango);font-size:26px;text-align:center">SETTINGS</h2>
+      <div class="setrow">
+        <div><div class="nm">Music</div><div class="ds">The score tightens as the danger rises.</div></div>
+        <button class="tgl" id="tglMusic" role="switch" aria-checked="true"><span class="sr">Musika</span></button>
+      </div>
+      <div class="setrow">
+        <div><div class="nm">Full Scare</div><div class="ds">The monster, the lightning and the cracked screen when he loses. Turn this off for the gentle version.</div></div>
+        <button class="tgl" id="tglScare" role="switch" aria-checked="true"><span class="sr">Buong takot</span></button>
+      </div>
+      <div class="setrow">
+        <div><div class="nm">Countdown</div><div class="ds">Only 15 seconds once the stranger starts forcing his way in.</div></div>
+        <button class="tgl" id="tglTimer" role="switch" aria-checked="true"><span class="sr">Countdown</span></button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="bigbtn ghost" id="restartbtn" style="flex:1;font-size:13px;padding:10px 0">RESET ALL</button>
+        <button class="bigbtn" id="closeset" style="flex:1;font-size:13px;padding:10px 0">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LOSE ============ -->
+  <div id="lose" hidden>
+    <div id="bolt"></div>
+    <svg id="monster" viewBox="0 0 200 280" aria-hidden="true"></svg>
+    <svg id="cracks" viewBox="0 0 400 600" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div id="shatter"></div>
+    <div id="abducted">
+      <h2>YOU HAVE BEEN ABDUCTED!!!!</h2>
+      <p>You never got to call for help</p>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   NUMBERS
+   ========================================================= */
+const NUM = {
+  dad:  "09173292166",
+  mom:  "09175372837",
+  cops: "911"
+};
+const LABEL = { dad:"DADDY", mom:"HONEY BEE", cops:"911" };
+
+/* =========================================================
+   STAGES
+   ========================================================= */
+const STAGES = [
+  {
+    id:"house", chip:"HOUSE / CONDO", scene:"house",
+    stranger:"TITA BABY", tone:"Very sweet voice.",
+    intro:"You are home alone. Daddy is at the office and Honey Bee is at the market. Someone is knocking at the door.",
+    beats:[
+      { say:"Hiii anak! I'm Tita Baby. Your mommy, Honey Bee — she's the one who sent me here. Just open the door, ha? Sandali lang.",
+        choices:[
+          {k:"safe", t:"“No po. I don't know you.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Okay po Tita, I'll open it.”",
+           why:"She knew Mommy's name — but that <strong>proves nothing</strong>. Anyone can find a name on Facebook, on a school ID, or just by listening at the gate. The <strong>real</strong> person Mommy sends will know your family's CODE WORD."}
+        ]},
+      { say:"Naku anak, why are you like that? I know Honey Bee! We were together in Bataan before. O — I even brought you pizza. Bilis, it's getting cold.",
+        choices:[
+          {k:"safe", t:"“I'm not allowed to open the door when Mommy or Daddy isn't home.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Pizza? Okay po, come in.”",
+           why:"Food, toys, gifts, money — all of it is <strong>BAIT</strong>. No snack is ever worth opening the door for."}
+        ]},
+      { say:"Anak... listen to me. There's an emergency. Your mommy is in the hospital right now. I have to take you there NOW. Open the door!",
+        choices:[
+          {k:"safe", t:"“If that's true po, Daddy or Lola would be the one coming for me.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Mommy is in the hospital?! Okay po!”",
+           why:"<strong>“Emergency”</strong> is a stranger's favourite lie, because they know that being scared makes you stop thinking. In a real emergency, <strong>someone you already know</strong> comes for you — and they know the CODE WORD."}
+        ]},
+      { force:true,
+        say:"<em>BANG! BANG! BANG! The door is shaking. Her voice has changed.</em> OPEN THIS DOOR! I WILL BREAK IT!",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Shout out the window: “TULONG! HELP!”",
+           note:"Good — a neighbour heard you. But he is still out there. <strong>You still have to call.</strong>"},
+          {k:"bad", t:"Open it so she stops.",
+           why:"When someone is breaking a door, opening it does <strong>not</strong> make them stop — it lets them in. The door is your shield. Stay behind it and <strong>call</strong>."}
+        ]}
+    ],
+    win:"You kept the door shut and you called for help. That is exactly right."
+  },
+
+  {
+    id:"playground", chip:"PLAYGROUND", scene:"play",
+    stranger:"KUYA JOMAR", tone:"Acts like a barkada.",
+    intro:"You are on the slide. Yaya is on the bench, a little too far away. A man walks over to you.",
+    beats:[
+      { say:"Uy pre! You're really good on that slide. O, you want some? I have candy — Choco Mucho and Flat Tops. Come here by the tree, marami pa.",
+        choices:[
+          {k:"safe", t:"“No po, thank you.” — and move away."},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Wow, Choco Mucho!” — walk over to him.",
+           why:"Candy is <strong>bait</strong>, not a gift. And remember the direction: you move <strong>away</strong> from a stranger — never toward a tree, a corner, or anywhere Yaya can't see you."}
+        ]},
+      { say:"Don't be shy, libre lang! Ay — I have a puppy in my car over there. Super cute, white Shih Tzu. Help me look for him, he ran off. Dalawang hakbang lang.",
+        choices:[
+          {k:"safe", t:"“I'm not allowed to go anywhere with anyone.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“A puppy? Sige po, I'll help you.”",
+           why:"This is the oldest trap there is: the <strong>lost pet</strong>. A real grown-up never asks a child for help. If they truly need help, they ask <strong>another grown-up</strong>."}
+        ]},
+      { say:"Sige na... parang you have no friends, ah. I'll be your best friend na lang. But this is our secret, ha? Don't tell Mommy — she'll just get mad at me.",
+        choices:[
+          {k:"safe", t:"“I don't keep secrets from Mommy and Daddy.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Opo, our secret.”",
+           why:"This is the biggest warning sign of all: <strong>“It's our secret, don't tell Mommy.”</strong> A good person will never ask you to hide something from your parents. There is no such thing as a bad secret in your family."}
+        ]},
+      { force:true,
+        say:"<em>He grabs your wrist and starts pulling you away from the slide.</em> Tara na, I said! Why are you so makulit?",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Shout: “I DON'T KNOW HIM! TULONG!”",
+           note:"Yes — your <strong>voice</strong> is your strongest weapon. People turned to look. But you still have to call."},
+          {k:"bad", t:"Just go with him so he doesn't get angry.",
+           why:"You do not have to be polite to someone who is hurting you. You are allowed to <strong>shout, pull away, and run</strong>. That isn't rude — that is saving yourself."}
+        ]}
+    ],
+    win:"You didn't go, you shouted, and you called. Perfect."
+  },
+
+  {
+    id:"court", chip:"PICKLEBALL COURT", scene:"court",
+    stranger:"COACH RANDY", tone:"Holding a paddle. Looks legit.",
+    intro:"The game is over. You are waiting outside the court for your ride. A man in a coach shirt walks up.",
+    beats:[
+      { say:"Hi Sebastian! I'm Coach Randy. Your daddy already paid for your extra lesson. Come, your new paddle is in my van.",
+        choices:[
+          {k:"safe", t:"“Daddy didn't tell me about that.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“A new paddle? Sige po Coach.”",
+           why:"A <strong>uniform is not an ID</strong>. Anyone can buy a coach shirt. And even a real coach never takes you to a vehicle without Daddy's permission."}
+        ]},
+      { say:"I know your name, diba? Sebastian Cruz. I know your daddy's name too. And I know you're from Angeles. See? We know each other.",
+        choices:[
+          {k:"safe", t:"“You only know my name. That doesn't mean we know each other.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Ah opo! So you do know us pala.”",
+           why:"Your name is written on your <strong>bag, your jersey and your ID</strong>. Saying your name proves <strong>nothing</strong>. The only proof is the CODE WORD."}
+        ]},
+      { say:"Naku, the court is closing and it looks like rain. I'll just drive you home. You're safe with me — I'm a coach, kids are my job.",
+        choices:[
+          {k:"safe", t:"“I'll stay right here until my ride comes.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Thank you po, I'll ride with you.”",
+           why:"When someone says <strong>“You're safe with me”</strong> — that is exactly the moment to think twice. A safe person never has to remind you they are safe. Wait where it is <strong>bright and full of people</strong>, not in a van."}
+        ]},
+      { force:true,
+        say:"<em>He opens the van door. He is standing between you and the way out.</em> Get in. I already told you, I've got you.",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Run back inside the court where the people are.",
+           note:"Exactly right — run <strong>toward people</strong>, not away from them. You're safe inside, but still make the call."},
+          {k:"bad", t:"Get in so he doesn't get angry.",
+           why:"<strong>Never get into a vehicle</strong> with someone who isn't on your pick-up list. Once you are inside, you have no control at all."}
+        ]}
+    ],
+    win:"You didn't get in. You stayed where there were people, and you called."
+  },
+
+  {
+    id:"school", chip:"SCHOOL GATE", scene:"school",
+    stranger:"ATE GIRLIE", tone:"Out of breath, almost crying.",
+    intro:"It is dismissal time. You are at the gate waiting for your ride. A woman comes running toward you.",
+    beats:[
+      { say:"Sebastian! Thank God I found you. I'm Ate Girlie, your cousin from Angeles. Your daddy asked me to pick you up.",
+        choices:[
+          {k:"safe", t:"“I don't remember you.” — go back to the guard."},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“You're my cousin pala? Sige po Ate.”",
+           why:"Some strangers will claim to be <strong>relatives</strong>. The rule is simple: if <strong>you don't remember them</strong>, they are not your ride. No matter what they say."}
+        ]},
+      { say:"There was an accident kasi. Honey Bee is in the hospital right now. You need to be there, anak. Bilis, the taxi is waiting outside.",
+        choices:[
+          {k:"safe", t:"“I'm going to my guard and my teacher.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Mommy?! Let's go po!”",
+           why:"In a real emergency <strong>the school calls your parents</strong> and brings you to the office — a stranger does not collect you at the gate. A real ride is <strong>on the pick-up list</strong>."}
+        ]},
+      { say:"Why won't you believe me?! We have no time! If we stay here any longer, baka... baka you won't make it to your mommy. Is that what you want?",
+        choices:[
+          {k:"safe", t:"“Whatever you say po, I'm going to my teacher.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"Start crying and go with her.",
+           why:"They scare you <strong>on purpose</strong> so you stop thinking. When someone is rushing you and making you cry — that is the moment to <strong>slow down</strong>, not to run off with them."}
+        ]},
+      { force:true,
+        say:"<em>She grabs your bag strap and pulls you toward the gate.</em> Enough questions! Come with me!",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Let go of the bag and run back to the guard.",
+           note:"Yes — <strong>leave the bag</strong>. A bag can be replaced. You can't. You're safe with the guard, but still call."},
+          {k:"bad", t:"Go with her because she's already pulling me.",
+           why:"If someone is pulling you: <strong>drop to the ground</strong>, shout <strong>“I DON'T KNOW HER!”</strong>, and hold on to the gate or a post. The people around you become your help."}
+        ]}
+    ],
+    win:"You never stepped outside the gate. You went to the guard and you called."
+  },
+
+  {
+    id:"church", chip:"CHURCH", scene:"church",
+    stranger:"BROTHER ELMER", tone:"Extremely kind. That's the danger.",
+    intro:"Mass has just ended. You are waiting for Lola near the door. A smiling man comes over.",
+    beats:[
+      { say:"God bless you, anak. What a good boy — I saw you listening the whole time. I'm Brother Elmer. Would you like to join our children's ministry? We have snacks and games.",
+        choices:[
+          {k:"safe", t:"“I'll ask Lola and Mommy first po.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Opo, I'll join!”",
+           why:"There is nothing wrong with a children's ministry — what's wrong is <strong>saying yes without asking</strong>. However good the offer sounds, your answer is always: <strong>“I'll ask my mom first.”</strong>"}
+        ]},
+      { say:"It's not only here in the church. We have an outing today in Bataan. The other kids are already in the van, just waiting. Sumama ka na.",
+        choices:[
+          {k:"safe", t:"“I'm not allowed to get into anybody's vehicle.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“There are other kids pala? Sige po.”",
+           why:"<strong>“The other kids are already there”</strong> is also a trap — it makes you feel safe because you think you won't be alone. You cannot see those kids. The rule doesn't change: <strong>no vehicle without permission</strong>."}
+        ]},
+      { say:"Anak... are you afraid of a servant of God? We are inside a church. There are no bad people here. Just trust me naman.",
+        choices:[
+          {k:"safe", t:"“Even here po, I'm still asking Mommy first.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Sorry po. Sige, I'll trust you.”",
+           why:"A <strong>place</strong> is not proof that a person is good. A truly good person is <strong>never angry</strong> when you say you'll ask your mom first — they would be proud of you for it."}
+        ]},
+      { force:true,
+        say:"<em>The smile is gone. His voice goes flat and cold.</em> Stop answering back. Follow me. Now.",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Go to the priest and the people inside.",
+           note:"Right — move <strong>toward the crowd</strong>. But still call for help."},
+          {k:"bad", t:"Follow him so I'm not being rude.",
+           why:"Notice what happened: <strong>his kindness disappeared the second you said no.</strong> That was the real face. You are never rude for refusing someone your parents don't know."}
+        ]}
+    ],
+    win:"You didn't fall for the smile. You went to the people, and you called."
+  },
+
+  {
+    id:"lolo", chip:"LOLO & LOLA'S", scene:"lolo",
+    stranger:"MANG BOY", tone:"He knows all the names.",
+    intro:"You are at Lolo and Lola's house. They are at the market. You are the only one inside. Someone calls out at the gate.",
+    beats:[
+      { say:"Sebastian! Ang laki mo na! I'm the neighbour of your Lolo Edmon and Lola. They're at the market diba? Let me in, I'll just wait inside.",
+        choices:[
+          {k:"safe", t:"“You can wait outside po.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“You're the neighbour pala? Come in po.”",
+           why:"He knows Lolo and Lola's names — <strong>the whole street knows those names.</strong> That is not a pass. If Lolo and Lola aren't home, <strong>nobody comes in</strong>."}
+        ]},
+      { say:"Naku, ang init out here, apo. Get me a glass of water naman. I'll just stay here in the sala, saglit lang talaga.",
+        choices:[
+          {k:"safe", t:"“Sorry po. The door stays closed when they're not home.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Sandali po, I'll get some water.”",
+           why:"The <strong>small favour</strong> is the most dangerous one — water, the bathroom, a phone, a pen. They are only testing whether you will open the door. Once it's open, you can't close it again."}
+        ]},
+      { say:"Ha? Why? Don't you know how to respect your elders? I'm telling your Lola that you're a bad boy. Ang sama ng ugali mo.",
+        choices:[
+          {k:"safe", t:"“Sige po, tell Lola. But the door stays closed.”"},
+          {k:"phone", t:"Get the phone and call."},
+          {k:"bad", t:"“Sorry po! Don't be mad, I'll open it.”",
+           why:"They use your <strong>good manners and your hiya</strong> as a weapon against you. Remember this: <strong>you are not rude for protecting yourself.</strong> Lolo and Lola would be proud."}
+        ]},
+      { force:true,
+        say:"<em>He is working at the gate lock now. Loud banging.</em> I'll get this open! Get out of the way!",
+        choices:[
+          {k:"phone", t:"CALL FOR HELP NOW."},
+          {k:"stall", t:"Lock every door and go into the bedroom.",
+           note:"Good — put <strong>as many doors between you as you can</strong>. Now that you're in there, <strong>call</strong>."},
+          {k:"bad", t:"Open it so the gate doesn't break.",
+           why:"A gate can be repaired. You can't. Someone breaking a door <strong>is an emergency</strong> — lock up, hide in a room that locks, and <strong>call 911</strong>."}
+        ]}
+    ],
+    win:"The door stayed closed and you called for help. Training complete."
+  }
+];
+
+/* =========================================================
+   SCENE ART
+   ========================================================= */
+const ART = {
+  /* ---------- SPLIT: inside | door | outside ---------- */
+  house:`
+   <defs>
+     <linearGradient id="hIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B3E24"/><stop offset="1" stop-color="#2E1F16"/></linearGradient>
+     <linearGradient id="hOut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181848"/><stop offset="1" stop-color="#090818"/></linearGradient>
+   </defs>
+   <rect x="0" y="-80" width="200" height="340" fill="url(#hIn)"/>
+   <rect x="200" y="-80" width="200" height="340" fill="url(#hOut)"/>
+   <rect x="0" y="198" width="180" height="62" fill="#3E2A1C"/>
+   <rect x="0" y="198" width="180" height="6" fill="#5F4128"/>
+   <ellipse cx="86" cy="236" rx="70" ry="15" fill="#8C3A32" stroke="#05030A" stroke-width="3"/>
+   <g stroke="#05030A" stroke-width="4">
+     <rect x="2" y="150" width="78" height="50" rx="7" fill="#2F6B6B"/>
+     <rect x="2" y="138" width="78" height="24" rx="7" fill="#40908F"/>
+   </g>
+   <g stroke="#05030A" stroke-width="4">
+     <line x1="148" y1="200" x2="148" y2="132"/>
+     <path d="M130 132 L166 132 L158 106 L138 106 Z" fill="#F7C55C"/>
+   </g>
+   <rect x="92" y="58" width="48" height="36" fill="#C8B48C" stroke="#05030A" stroke-width="3.5"/>
+   <path d="M96 90 L110 72 L120 82 L131 68 L136 90 Z" fill="#6E8C5A"/>
+   <rect x="220" y="198" width="180" height="62" fill="#1B1940"/>
+   <rect x="220" y="198" width="180" height="6" fill="#2B2960"/>
+   <circle cx="356" cy="42" r="17" fill="#F2E8C8" opacity=".9"/>
+   <circle cx="348" cy="38" r="16" fill="#181848"/>
+   <g fill="#FFEEDA" opacity=".6">
+     <circle cx="252" cy="34" r="1.5"/><circle cx="292" cy="18" r="1.2"/><circle cx="332" cy="80" r="1.3"/>
+     <circle cx="382" cy="60" r="1.2"/><circle cx="266" cy="68" r="1.1"/><circle cx="308" cy="46" r="1.1"/>
+   </g>
+   <path d="M332 198 q5-42 17-46 q12 4 17 46 z" fill="#2F6B3A" stroke="#05030A" stroke-width="3.5"/>
+   <rect x="328" y="196" width="42" height="22" rx="3" fill="#8C4A2F" stroke="#05030A" stroke-width="3.5"/>
+   <rect x="176" y="-80" width="48" height="340" fill="#241A30" stroke="#05030A" stroke-width="5"/>
+   <rect x="184" y="42" width="32" height="166" rx="3" fill="#7A4326" stroke="#05030A" stroke-width="5"/>
+   <circle cx="200" cy="68" r="4.5" fill="#0E0B1E" stroke="#05030A" stroke-width="2.5"/>
+   <circle cx="210" cy="140" r="4.5" fill="#F7C55C" stroke="#05030A" stroke-width="2.5"/>`,
+
+  lolo:`
+   <defs>
+     <linearGradient id="lIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B5236"/><stop offset="1" stop-color="#34261A"/></linearGradient>
+     <linearGradient id="lOut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5804A"/><stop offset=".55" stop-color="#8A4A62"/><stop offset="1" stop-color="#3A2646"/></linearGradient>
+   </defs>
+   <rect x="0" y="-80" width="200" height="340" fill="url(#lIn)"/>
+   <rect x="200" y="-80" width="200" height="340" fill="url(#lOut)"/>
+   <rect x="0" y="200" width="180" height="60" fill="#4A3524"/>
+   <rect x="0" y="200" width="180" height="6" fill="#6E5236"/>
+   <g stroke="#05030A" stroke-width="3.5">
+     <rect x="14" y="88" width="62" height="50" fill="#C9B98E"/>
+     <line x1="45" y1="88" x2="45" y2="138"/><line x1="14" y1="113" x2="76" y2="113"/>
+   </g>
+   <g stroke="#05030A" stroke-width="4">
+     <rect x="104" y="150" width="54" height="10" rx="3" fill="#7A5230"/>
+     <rect x="104" y="158" width="10" height="44" fill="#7A5230"/>
+     <rect x="148" y="158" width="10" height="44" fill="#7A5230"/>
+     <rect x="100" y="112" width="62" height="42" rx="4" fill="#8C5F38"/>
+   </g>
+   <rect x="16" y="26" width="52" height="38" fill="#3E2C1E" stroke="#05030A" stroke-width="3.5"/>
+   <circle cx="34" cy="46" r="7" fill="#C9A88A"/><circle cx="52" cy="46" r="7" fill="#C9A88A"/>
+   <rect x="220" y="200" width="180" height="60" fill="#5A4636"/>
+   <rect x="220" y="200" width="180" height="6" fill="#755B45"/>
+   <circle cx="300" cy="56" r="21" fill="#FFD98A" opacity=".85"/>
+   <g stroke="#05030A" stroke-width="3.5" fill="#2F6B3A">
+     <path d="M352 200 q-7-44 4-64 q16 18 11 64 z"/>
+     <path d="M362 200 q20-38 38-44 q-2 24-25 44 z"/>
+   </g>
+   <rect x="176" y="-80" width="48" height="340" fill="#2A2038" stroke="#05030A" stroke-width="5"/>
+   <g stroke="#05030A" stroke-width="4">
+     <rect x="182" y="46" width="36" height="164" fill="#3E3355"/>
+   </g>
+   <g stroke="#0A0716" stroke-width="5">
+     <line x1="190" y1="50" x2="190" y2="206"/><line x1="200" y1="50" x2="200" y2="206"/>
+     <line x1="210" y1="50" x2="210" y2="206"/>
+     <line x1="182" y1="120" x2="218" y2="120"/>
+   </g>
+   <circle cx="200" cy="146" r="8" fill="#B8A24A" stroke="#05030A" stroke-width="3"/>`,
+
+  school:`
+   <defs>
+     <linearGradient id="sIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FA0CE"/><stop offset="1" stop-color="#31447045"/></linearGradient>
+     <linearGradient id="sOut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5C79A8"/><stop offset="1" stop-color="#232F52"/></linearGradient>
+   </defs>
+   <rect x="0" y="-80" width="200" height="340" fill="#6E8FC0"/>
+   <rect x="0" y="-80" width="200" height="340" fill="url(#sIn)"/>
+   <rect x="200" y="-80" width="200" height="340" fill="url(#sOut)"/>
+   <ellipse cx="70" cy="36" rx="40" ry="15" fill="#AFC4E4" opacity=".6"/>
+   <rect x="0" y="200" width="180" height="60" fill="#8E8A78"/>
+   <rect x="0" y="200" width="180" height="6" fill="#A6A18C"/>
+   <rect x="8" y="76" width="164" height="124" fill="#E8DCC0" stroke="#05030A" stroke-width="4"/>
+   <path d="M0 76 L90 40 L180 76 Z" fill="#B24A3A" stroke="#05030A" stroke-width="4"/>
+   <g fill="#5E86B8" stroke="#05030A" stroke-width="3">
+     <rect x="24" y="100" width="32" height="28"/><rect x="74" y="100" width="32" height="28"/>
+     <rect x="124" y="100" width="32" height="28"/>
+   </g>
+   <rect x="72" y="146" width="38" height="54" fill="#7A4326" stroke="#05030A" stroke-width="4"/>
+   <rect x="220" y="200" width="180" height="60" fill="#4A4460"/>
+   <rect x="220" y="200" width="180" height="6" fill="#635C7E"/>
+   <g stroke="#FFEEDA" stroke-width="3" opacity=".5"><line x1="236" y1="232" x2="268" y2="232"/><line x1="292" y1="232" x2="324" y2="232"/></g>
+   <g stroke="#05030A" stroke-width="4">
+     <rect x="300" y="140" width="92" height="40" rx="8" fill="#E8B832"/>
+     <rect x="312" y="118" width="62" height="26" rx="6" fill="#E8B832"/>
+     <rect x="320" y="124" width="22" height="16" rx="2" fill="#8FB4CE"/>
+     <rect x="348" y="124" width="22" height="16" rx="2" fill="#8FB4CE"/>
+   </g>
+   <circle cx="320" cy="182" r="11" fill="#14121F" stroke="#05030A" stroke-width="3.5"/>
+   <circle cx="374" cy="182" r="11" fill="#14121F" stroke="#05030A" stroke-width="3.5"/>
+   <rect x="176" y="-80" width="48" height="340" fill="#39334E" stroke="#05030A" stroke-width="5"/>
+   <g stroke="#0A0716" stroke-width="5">
+     <line x1="186" y1="40" x2="186" y2="212"/><line x1="200" y1="40" x2="200" y2="212"/>
+     <line x1="214" y1="40" x2="214" y2="212"/>
+     <line x1="178" y1="44" x2="222" y2="44"/><line x1="178" y1="126" x2="222" y2="126"/>
+   </g>`,
+
+  /* ---------- OPEN: one shared space ---------- */
+  play:`
+   <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1">
+     <stop offset="0" stop-color="#2C4B6E"/><stop offset="1" stop-color="#16243C"/></linearGradient></defs>
+   <rect x="0" y="-80" width="400" height="340" fill="url(#gP)"/>
+   <circle cx="52" cy="42" r="23" fill="#FFB02E" opacity=".9"/>
+   <ellipse cx="136" cy="40" rx="38" ry="14" fill="#3E5F86" opacity=".7"/>
+   <ellipse cx="300" cy="28" rx="44" ry="16" fill="#3E5F86" opacity=".6"/>
+   <rect x="0" y="180" width="400" height="80" fill="#2C5A38"/>
+   <rect x="0" y="180" width="400" height="7" fill="#3E7A4A"/>
+   <rect x="0" y="212" width="400" height="5" fill="#25502F" opacity=".7"/>
+   <g stroke="#05030A" stroke-width="4" fill="none">
+     <path d="M36 208 L36 96 L112 96 L112 208"/>
+     <path d="M36 96 L74 68 L112 96" fill="#C8452F"/>
+   </g>
+   <path d="M112 118 L168 208 L142 208 L94 128 Z" fill="#F7C55C" stroke="#05030A" stroke-width="4"/>
+   <g stroke="#05030A" stroke-width="3.5">
+     <line x1="252" y1="196" x2="272" y2="120"/><line x1="332" y1="196" x2="312" y2="120"/>
+     <line x1="272" y1="120" x2="312" y2="120"/>
+     <line x1="282" y1="120" x2="282" y2="162"/><line x1="302" y1="120" x2="302" y2="162"/>
+   </g>
+   <rect x="277" y="160" width="30" height="7" rx="2" fill="#C8452F" stroke="#05030A" stroke-width="3"/>
+   <circle cx="376" cy="206" r="8" fill="#6FD44E" stroke="#05030A" stroke-width="3"/>`,
+
+  court:`
+   <defs><linearGradient id="gC" x1="0" y1="0" x2="0" y2="1">
+     <stop offset="0" stop-color="#F09A3E"/><stop offset=".5" stop-color="#A2506B"/><stop offset="1" stop-color="#3C2450"/></linearGradient></defs>
+   <rect x="0" y="-80" width="400" height="340" fill="url(#gC)"/>
+   <circle cx="330" cy="54" r="25" fill="#FFE07A" opacity=".95"/>
+   <rect x="0" y="146" width="400" height="114" fill="#2C6E86"/>
+   <g stroke="#FFEEDA" stroke-width="3" opacity=".8" fill="none">
+     <path d="M-10 258 L118 158 L292 158 L410 258"/>
+     <path d="M24 210 L376 210"/><path d="M205 210 L205 258"/><path d="M205 158 L205 180"/>
+   </g>
+   <g stroke="#05030A" stroke-width="4">
+     <line x1="40" y1="190" x2="40" y2="122"/><line x1="360" y1="190" x2="360" y2="122"/>
+     <line x1="40" y1="122" x2="360" y2="122"/>
+   </g>
+   <rect x="40" y="128" width="320" height="56" fill="#FFEEDA" opacity=".26"/>
+   <g opacity=".45" stroke="#FFEEDA" stroke-width="1.4">
+     <line x1="76" y1="128" x2="76" y2="184"/><line x1="124" y1="128" x2="124" y2="184"/>
+     <line x1="172" y1="128" x2="172" y2="184"/><line x1="220" y1="128" x2="220" y2="184"/>
+     <line x1="268" y1="128" x2="268" y2="184"/><line x1="316" y1="128" x2="316" y2="184"/>
+   </g>
+   <g stroke="#05030A" stroke-width="4">
+     <rect x="300" y="86" width="96" height="50" rx="8" fill="#33304A"/>
+     <rect x="310" y="96" width="32" height="22" rx="3" fill="#7EA8C4"/>
+   </g>
+   <circle cx="322" cy="140" r="10" fill="#14121F" stroke="#05030A" stroke-width="3"/>
+   <circle cx="378" cy="140" r="10" fill="#14121F" stroke="#05030A" stroke-width="3"/>`,
+
+  church:`
+   <defs>
+     <linearGradient id="gCh" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0" stop-color="#3A2A4E"/><stop offset="1" stop-color="#160F24"/></linearGradient>
+     <linearGradient id="gGl" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0" stop-color="#FFC94A"/><stop offset="1" stop-color="#C8452F"/></linearGradient>
+   </defs>
+   <rect x="0" y="-80" width="400" height="340" fill="url(#gCh)"/>
+   <rect x="0" y="212" width="400" height="48" fill="#4A3A2E"/>
+   <rect x="0" y="212" width="400" height="6" fill="#5F4B3A"/>
+   <g stroke="#05030A" stroke-width="4" fill="#2A1F3E">
+     <path d="M26 212 L26 100 Q26 58 64 58 Q102 58 102 100 L102 212 Z"/>
+     <path d="M298 212 L298 100 Q298 58 336 58 Q374 58 374 100 L374 212 Z"/>
+   </g>
+   <g fill="url(#gGl)" opacity=".92">
+     <path d="M36 206 L36 102 Q36 68 64 68 Q92 68 92 102 L92 206 Z"/>
+     <path d="M308 206 L308 102 Q308 68 336 68 Q364 68 364 102 L364 206 Z"/>
+   </g>
+   <g stroke="#05030A" stroke-width="3" opacity=".7">
+     <line x1="36" y1="132" x2="92" y2="132"/><line x1="64" y1="68" x2="64" y2="206"/>
+     <line x1="308" y1="132" x2="364" y2="132"/><line x1="336" y1="68" x2="336" y2="206"/>
+   </g>
+   <rect x="196" y="30" width="10" height="58" fill="#E8D9B0" stroke="#05030A" stroke-width="3"/>
+   <rect x="177" y="48" width="48" height="10" fill="#E8D9B0" stroke="#05030A" stroke-width="3"/>
+   <g>
+     <rect x="146" y="188" width="108" height="9" rx="2" fill="#6B4A32" stroke="#05030A" stroke-width="3"/>
+     <rect x="146" y="212" width="108" height="9" rx="2" fill="#6B4A32" stroke="#05030A" stroke-width="3"/>
+   </g>
+   <g>
+     <rect x="136" y="150" width="6" height="24" fill="#F7E8C8" stroke="#05030A" stroke-width="2"/>
+     <ellipse cx="139" cy="144" rx="4" ry="7" fill="#FFC94A"/>
+     <rect x="260" y="150" width="6" height="24" fill="#F7E8C8" stroke="#05030A" stroke-width="2"/>
+     <ellipse cx="263" cy="144" rx="4" ry="7" fill="#FFC94A"/>
+   </g>`
+};
+
+/* ---------- figures: anchored on the ground line ---------- */
+function kidSVG(x, ground, s){
+  const y = ground - 62 * s;
+  return `<g transform="translate(${x},${y.toFixed(1)}) scale(${s})" stroke="#05030A" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="0" cy="62" rx="20" ry="5" fill="#05030A" opacity=".35" stroke="none"/>
+    <rect x="-13" y="6" width="26" height="34" rx="7" fill="#38A0D8"/>
+    <rect x="-11" y="38" width="9" height="22" rx="4" fill="#2A3A62"/>
+    <rect x="2" y="38" width="9" height="22" rx="4" fill="#2A3A62"/>
+    <circle cx="0" cy="-8" r="15" fill="#E8A87C"/>
+    <path d="M-15 -12 q4-14 15-14 q12 0 15 14 q-8-6-15-6 q-8 0-15 6z" fill="#2A1A14"/>
+    <circle cx="-5.5" cy="-8" r="2.6" fill="#14121F" stroke="none"/>
+    <circle cx="5.5" cy="-8" r="2.6" fill="#14121F" stroke="none"/>
+    <path d="M-5 0 q5 4 10 0" fill="none" stroke-width="2.6"/>
+  </g>`;
+}
+function strangerSVG(x, ground, s, t){
+  const y = ground - 86 * s;
+  const glow = t>=3 ? `<circle cx="-6" cy="-10" r="3.2" fill="#FF3B3B" stroke="none"/><circle cx="6" cy="-10" r="3.2" fill="#FF3B3B" stroke="none"/>`
+                    : `<circle cx="-6" cy="-10" r="2.8" fill="#14121F" stroke="none"/><circle cx="6" cy="-10" r="2.8" fill="#14121F" stroke="none"/>`;
+  const mouth = t>=3 ? `<path d="M-8 -1 q8 -5 16 0" fill="none" stroke-width="2.6"/>`
+                     : `<path d="M-8 -2 q8 6 16 0" fill="none" stroke-width="2.6"/>`;
+  const body = t>=4 ? "#3A1020" : (t>=3 ? "#43264A" : "#4A3A6B");
+  return `<g transform="translate(${x},${y.toFixed(1)}) scale(${s})" stroke="#05030A" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="0" cy="86" rx="27" ry="6" fill="#05030A" opacity=".4" stroke="none"/>
+    <rect x="-20" y="8" width="40" height="48" rx="8" fill="${body}"/>
+    <rect x="-17" y="54" width="14" height="30" rx="5" fill="#241C3A"/>
+    <rect x="3" y="54" width="14" height="30" rx="5" fill="#241C3A"/>
+    <rect x="-29" y="14" width="10" height="36" rx="5" fill="${body}"/>
+    <rect x="19" y="14" width="10" height="36" rx="5" fill="${body}"/>
+    <circle cx="0" cy="-12" r="18" fill="#C89070"/>
+    <path d="M-19 -18 q6-16 19-16 q13 0 19 16 z" fill="#2A2438"/>
+    <rect x="-22" y="-20" width="44" height="6" rx="3" fill="#2A2438"/>
+    ${glow}${mouth}
+  </g>`;
+}
+
+/* [x, groundY, scale] — stranger closes in as the danger rises */
+const POS = {
+  house:  {split:true,  kid:[132,236,1.0], far:[280,232,.86], near:[246,238,1.14]},
+  lolo:   {split:true,  kid:[134,238,1.0], far:[280,234,.86], near:[246,240,1.14]},
+  school: {split:true,  kid:[130,240,1.0], far:[278,236,.86], near:[246,242,1.14]},
+  play:   {split:false, kid:[126,240,1.0], far:[284,214,.72], near:[188,242,1.12]},
+  court:  {split:false, kid:[128,242,1.0], far:[286,186,.68], near:[190,244,1.12]},
+  church: {split:false, kid:[130,242,1.0], far:[282,214,.74], near:[192,244,1.12]}
+};
+
+/* =========================================================
+   AUDIO
+   ========================================================= */
+const VOL = 0.55;
+const Music = {
+  ctx:null, master:null, on:true, started:false, t:1,
+  pad:[], arpTimer:null, step:0, root:208,
+  init(){
+    if(this.ctx) return;
+    try{
+      const C = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new C();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0;
+      this.master.connect(this.ctx.destination);
+    }catch(e){ this.ctx = null; }
+  },
+  start(){
+    this.init();
+    if(!this.ctx || this.started) return;
+    this.started = true;
+    if(this.ctx.state === "suspended") this.ctx.resume();
+    const filt = this.ctx.createBiquadFilter();
+    filt.type = "lowpass"; filt.frequency.value = 900;
+    filt.connect(this.master);
+    this.filt = filt;
+    [1, 1.5, 2.005].forEach((m,i)=>{
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = i===2 ? "triangle" : "sawtooth";
+      o.frequency.value = this.root * m;
+      o.detune.value = i===1 ? 6 : -5;
+      g.gain.value = i===2 ? 0.09 : 0.15;
+      o.connect(g); g.connect(filt); o.start();
+      this.pad.push({o,g});
+    });
+    this.schedule();
+    this.setTension(this.t);
+    this.fade(this.on ? VOL : 0, .8);
+  },
+  fade(v,dur){
+    if(!this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setValueAtTime(this.master.gain.value, now);
+    this.master.gain.linearRampToValueAtTime(v, now + dur);
+  },
+  blip(freq, dur, type, vol, when){
+    if(!this.ctx) return;
+    const t0 = (when || this.ctx.currentTime);
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type || "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || .12, t0 + .012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(this.master); o.start(t0); o.stop(t0 + dur + .05);
+  },
+  schedule(){
+    clearInterval(this.arpTimer);
+    const ms = [420, 330, 250, 168][this.t-1] || 330;
+    this.arpTimer = setInterval(()=>{
+      if(!this.ctx || !this.started) return;
+      const scale = this.t >= 3 ? [0,1,5,6,7,11] : [0,3,5,7,10];
+      const n = scale[this.step % scale.length];
+      const oct = (this.step % 8 < 4) ? 4 : 8;
+      this.blip(this.root * oct/2 * Math.pow(2, n/12), this.t>=3 ? .16 : .28,
+                this.t>=4 ? "square" : "triangle", this.t>=3 ? .15 : .11);
+      if(this.t >= 3 && this.step % 4 === 0) this.thump();
+      if(this.t >= 4 && this.step % 4 === 2) this.thump(.7);
+      this.step++;
+    }, ms);
+  },
+  thump(v){
+    if(!this.ctx) return;
+    const t0 = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(120, t0);
+    o.frequency.exponentialRampToValueAtTime(38, t0 + .16);
+    g.gain.setValueAtTime(.34 * (v || 1), t0);
+    g.gain.exponentialRampToValueAtTime(.0001, t0 + .26);
+    o.connect(g); g.connect(this.master); o.start(t0); o.stop(t0 + .3);
+  },
+  setTension(t){
+    this.t = Math.max(1, Math.min(4, t));
+    if(!this.ctx || !this.started) return;
+    const now = this.ctx.currentTime;
+    this.filt.frequency.linearRampToValueAtTime([900, 1300, 1900, 2800][this.t-1], now + .6);
+    this.pad.forEach((p,i)=>{
+      p.o.detune.linearRampToValueAtTime(i===1 ? 6 + this.t*9 : -5 - this.t*7, now + .6);
+    });
+    this.schedule();
+  },
+  setRoot(r){
+    this.root = r;
+    if(!this.ctx || !this.started) return;
+    const now = this.ctx.currentTime;
+    [1, 1.5, 2.005].forEach((m,i)=>{
+      if(this.pad[i]) this.pad[i].o.frequency.linearRampToValueAtTime(r*m, now + .5);
+    });
+  },
+  mute(v){
+    this.on = v;
+    this.fade(v ? VOL : 0, .4);
+  },
+  stinger(kind){
+    if(!this.ctx || !this.on) return;
+    const t0 = this.ctx.currentTime;
+    if(kind === "win"){
+      [0,4,7,12,16].forEach((n,i)=> this.blip(330*Math.pow(2,n/12), .5, "triangle", .16, t0 + i*.1));
+    } else if(kind === "ring"){
+      this.blip(880, .12, "sine", .1, t0);
+      this.blip(880, .12, "sine", .1, t0 + .22);
+    } else if(kind === "err"){
+      this.blip(180, .22, "square", .12, t0);
+      this.blip(120, .3, "square", .12, t0 + .16);
+    }
+  },
+  boom(){
+    if(!this.ctx || !this.on) return;
+    const t0 = this.ctx.currentTime;
+    const len = this.ctx.sampleRate * 2.2;
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 1.6);
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const f = this.ctx.createBiquadFilter(); f.type = "lowpass";
+    f.frequency.setValueAtTime(1600, t0);
+    f.frequency.exponentialRampToValueAtTime(70, t0 + 2);
+    const g = this.ctx.createGain(); g.gain.value = .55;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination);
+    src.start(t0);
+    // screech
+    const o = this.ctx.createOscillator(), og = this.ctx.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(1400, t0);
+    o.frequency.exponentialRampToValueAtTime(180, t0 + 1.4);
+    og.gain.setValueAtTime(.16, t0);
+    og.gain.exponentialRampToValueAtTime(.0001, t0 + 1.6);
+    o.connect(og); og.connect(this.ctx.destination);
+    o.start(t0); o.stop(t0 + 1.7);
+  },
+  hit(){
+    if(!this.ctx || !this.on) return;
+    const t0 = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = "square"; o.frequency.setValueAtTime(260, t0);
+    o.frequency.exponentialRampToValueAtTime(40, t0 + .22);
+    g.gain.setValueAtTime(.4, t0);
+    g.gain.exponentialRampToValueAtTime(.0001, t0 + .3);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0 + .35);
+  },
+  stopAll(){
+    clearInterval(this.arpTimer);
+    this.fade(0, .18);
+  },
+  resumeBed(){
+    if(!this.ctx || !this.started) return;
+    this.schedule();
+    this.fade(this.on ? VOL : 0, .5);
+  }
+};
+const ROOTS = { house:208, play:262, court:233, school:220, church:196, lolo:185 };
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const S = {
+  stage:0, beat:0, tension:1, won:[], hintLevel:0,
+  target:null, dialStr:"", timer:null, timeLeft:0, sos:false,
+  opts:{ music:true, scare:true, timer:true }
+};
+
+const $ = id => document.getElementById(id);
+const el = {
+  title:$("title"), hud:$("hud"), chip:$("stagechip"), meter:$("meter"),
+  wrap:$("stagewrap"), scene:$("scene"), flash:$("flash"),
+  panel:$("panel"), talk:$("talk"), who:$("who"), say:$("say"), choices:$("choices"),
+  phone:$("phone"), dialed:$("dialed"), phmsg:$("phmsg"), keys:$("keys"),
+  result:$("result"), settings:$("settings"), lose:$("lose"),
+  monster:$("monster"), cracks:$("cracks"), bolt:$("bolt"),
+  shatter:$("shatter"), abducted:$("abducted"),
+  timerwrap:$("timerwrap"), timerfill:$("timerfill")
+};
+
+/* localStorage — best effort only */
+function save(){
+  try{ localStorage.setItem("ligtas-v1", JSON.stringify({won:S.won, opts:S.opts})); }catch(e){}
+}
+function load(){
+  try{
+    const r = JSON.parse(localStorage.getItem("ligtas-v1") || "{}");
+    if(Array.isArray(r.won)) S.won = r.won;
+    if(r.opts) Object.assign(S.opts, r.opts);
+  }catch(e){}
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function lerp(a,b,f){ return a + (b-a)*f; }
+function drawScene(){
+  const st = STAGES[S.stage];
+  const p = POS[st.scene];
+  const f = (S.tension - 1) / 3;
+  const sx = lerp(p.far[0], p.near[0], f);
+  const sg = lerp(p.far[1], p.near[1], f);
+  const ss = lerp(p.far[2], p.near[2], f);
+  el.wrap.classList.toggle("split", !!p.split);
+  el.scene.innerHTML = ART[st.scene]
+    + kidSVG(p.kid[0], p.kid[1], p.kid[2])
+    + strangerSVG(sx, sg, ss, S.tension);
+}
+
+function setTension(t){
+  S.tension = Math.max(1, Math.min(4, t));
+  el.meter.dataset.t = S.tension;
+  el.wrap.dataset.t = S.tension;
+  [...el.meter.querySelectorAll(".bar")].forEach((b,i)=> b.classList.toggle("on", i < S.tension));
+  Music.setTension(S.tension);
+}
+
+function renderBeat(){
+  const st = STAGES[S.stage];
+  const b = st.beats[S.beat];
+  setTension(S.beat + 1);
+  drawScene();
+  el.chip.textContent = st.chip;
+  el.who.textContent = st.stranger;
+  el.who.classList.remove("narr");
+  el.say.innerHTML = b.say;
+
+  el.choices.innerHTML = "";
+  b.choices.forEach((c,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.dataset.k = c.k;
+    if(c.k === "phone" && S.tension >= 3) btn.classList.add("urgent");
+    const mark = c.k === "phone"
+      ? `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#05030A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2.1z"/></svg>`
+      : String.fromCharCode(65+i);
+    btn.innerHTML = `<span class="tag">${mark}</span><span>${c.t}</span>`;
+    btn.addEventListener("click", ()=> pick(c));
+    el.choices.appendChild(btn);
+  });
+
+  if(b.force && S.opts.timer) startTimer(15);
+  else stopTimer();
+  refreshNav();
+}
+
+function narrate(text, next){
+  stopTimer();
+  el.who.textContent = "SEBASTIAN";
+  el.who.classList.add("narr");
+  el.say.innerHTML = text;
+  el.choices.innerHTML = "";
+  const btn = document.createElement("button");
+  btn.className = "choice"; btn.dataset.k = "safe";
+  btn.innerHTML = `<span class="tag">▶</span><span>Continue</span>`;
+  btn.addEventListener("click", next);
+  el.choices.appendChild(btn);
+  refreshNav();
+}
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+function startTimer(sec){
+  stopTimer();
+  S.timeLeft = sec * 10;
+  const total = S.timeLeft;
+  el.timerwrap.classList.add("on");
+  el.timerfill.style.width = "100%";
+  S.timer = setInterval(()=>{
+    S.timeLeft--;
+    el.timerfill.style.width = Math.max(0, (S.timeLeft/total)*100) + "%";
+    if(S.timeLeft <= 0){
+      stopTimer();
+      lose({ why:"Time ran out. While you were still deciding, <strong>he got in.</strong> In a moment like that you don't need to think for long — <strong>call right away.</strong>" });
+    }
+  }, 100);
+}
+function stopTimer(){
+  clearInterval(S.timer); S.timer = null;
+  el.timerwrap.classList.remove("on");
+}
+
+/* =========================================================
+   CHOICE HANDLING
+   ========================================================= */
+function pick(c){
+  Music.start();
+  if(c.k === "bad"){ lose(c); return; }
+  if(c.k === "phone"){ openPhone(); return; }
+  if(c.k === "stall"){
+    narrate(c.note, ()=> renderBeat());
+    return;
+  }
+  // safe
+  const st = STAGES[S.stage];
+  if(S.beat < st.beats.length - 1){
+    S.beat++;
+    flashScene(120);
+    renderBeat();
+  } else {
+    openPhone();
+  }
+}
+
+function flashScene(ms){
+  el.flash.animate(
+    [{opacity:0},{opacity:.45},{opacity:0}],
+    {duration: ms || 160, easing:"ease-out"}
+  );
+}
+
+/* =========================================================
+   PHONE
+   ========================================================= */
+const KEYPAD = ["1","2","3","4","5","6","7","8","9","DEL","0","911"];
+function buildKeys(){
+  el.keys.innerHTML = "";
+  KEYPAD.forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "key" + (k === "DEL" ? " del" : "") + (k === "911" ? " sos" : "");
+    b.textContent = k === "DEL" ? "DEL" : k;
+    b.addEventListener("click", ()=> press(k));
+    el.keys.appendChild(b);
+  });
+}
+function press(k){
+  Music.start();
+  if(k === "DEL"){ S.dialStr = S.dialStr.slice(0,-1); }
+  else if(k === "911"){ S.dialStr = "911"; }
+  else if(S.dialStr.length < 11){ S.dialStr += k; Music.blip(700 + Number(k)*40, .07, "sine", .08); }
+  paintDial();
+}
+function paintDial(){
+  if(!S.dialStr){
+    el.dialed.innerHTML = `<span class="ph">Dial the number</span>`;
+  } else {
+    el.dialed.textContent = S.dialStr;
+  }
+}
+function openPhone(){
+  stopTimer();
+  S.dialStr = ""; S.hintLevel = 0;
+  paintDial();
+  el.phmsg.className = "";
+  el.phmsg.textContent = S.tension >= 3
+    ? "Hurry! Who are you calling?"
+    : "You know these by heart. Who are you calling?";
+  el.phone.hidden = false;
+  Music.stinger("ring");
+  refreshNav();
+}
+function closePhone(){
+  el.phone.hidden = true;
+  const b = STAGES[S.stage].beats[S.beat];
+  if(b.force && S.opts.timer) startTimer(Math.max(6, Math.ceil(S.timeLeft/10) || 10));
+  refreshNav();
+}
+function hint(){
+  S.hintLevel = Math.min(3, S.hintLevel + 1);
+  el.phmsg.className = "warn";
+  if(S.hintLevel === 1)
+    el.phmsg.textContent = "Both start with 0917. Daddy's is 0917 3 2 9 ...";
+  else if(S.hintLevel === 2)
+    el.phmsg.textContent = "DADDY: 0917 329 2 1 _ _   ·   HONEY BEE: 0917 537 2 8 _ _";
+  else
+    el.phmsg.textContent = "DADDY: " + NUM.dad + "   ·   HONEY BEE: " + NUM.mom;
+}
+function call(){
+  const d = S.dialStr;
+  if(!d){ el.phmsg.className="bad"; el.phmsg.textContent="No number yet. Press the keys first."; return; }
+
+  if(d === NUM.dad || d === NUM.mom){
+    const who = d === NUM.dad ? "dad" : "mom";
+    el.phmsg.className = "";
+    el.phmsg.textContent = "Ringing... " + LABEL[who];
+    Music.stinger("ring");
+    setTimeout(()=> win(who), 900);
+    return;
+  }
+  if(d === NUM.cops){
+    if(S.tension >= 3){
+      el.phmsg.className = "";
+      el.phmsg.textContent = "Ringing... 911 EMERGENCY";
+      Music.stinger("ring");
+      setTimeout(()=> win("cops"), 900);
+    } else {
+      el.phmsg.className = "warn";
+      el.phmsg.textContent = "911: “Nobody is hurting you yet, anak. Call your mom or dad first.”";
+      S.sos = true;
+      setTimeout(()=>{ S.dialStr = ""; paintDial(); }, 1400);
+    }
+    return;
+  }
+  el.phmsg.className = "bad";
+  el.phmsg.textContent = "That number can't be reached. Think again and try once more.";
+  Music.stinger("err");
+  S.dialStr = "";
+  setTimeout(paintDial, 700);
+}
+
+/* =========================================================
+   WIN / LOSE
+   ========================================================= */
+const WINTEXT = {
+  dad:{ n:"DADDY", line:"“Sebastian? Anak, do not go outside. Do not open anything. I'm on my way — and the police are coming too.”" },
+  mom:{ n:"HONEY BEE", line:"“Anak, you did so well! I did not send anyone for you. Lock the door and stay right where you are. I'm coming now.”" },
+  cops:{ n:"911", line:"“Stay calm, anak. We have your address. A patrol car is heading there right now. Stay inside.”" }
+};
+function win(who){
+  stopTimer();
+  el.phone.hidden = true;
+  const st = STAGES[S.stage];
+  if(!S.won.includes(st.id)) S.won.push(st.id);
+  save();
+  Music.setTension(1);
+  Music.stinger("win");
+
+  const last = S.won.length >= STAGES.length;
+  const w = WINTEXT[who];
+  el.result.innerHTML = `
+    <div class="card good">
+      <h2 class="kicker">YOU'RE SAFE!</h2>
+      <div class="quote"><b>${w.n} — ANSWERED</b>${w.line}</div>
+      <p class="lesson">${st.win}</p>
+      ${badgeRow()}
+      <button class="bigbtn" id="nextbtn">${last ? "SEE YOUR BADGES" : "NEXT PLACE"}</button>
+    </div>`;
+  el.result.hidden = false;
+  $("nextbtn").addEventListener("click", ()=> last ? finale() : nextStage());
+  refreshNav();
+}
+
+function nextStage(){
+  el.result.hidden = true;
+  let n = S.stage + 1;
+  while(n < STAGES.length && S.won.includes(STAGES[n].id)) n++;
+  if(n >= STAGES.length){
+    n = STAGES.findIndex(s=> !S.won.includes(s.id));
+    if(n < 0){ finale(); return; }
+  }
+  S.stage = n; S.beat = 0; S.sos = false;
+  Music.setRoot(ROOTS[STAGES[n].scene]);
+  showIntro();
+}
+
+function showIntro(){
+  const st = STAGES[S.stage];
+  setTension(1);
+  drawScene();
+  el.chip.textContent = st.chip;
+  narrate(`<em>${st.intro}</em>`, ()=> renderBeat());
+}
+
+function badgeRow(){
+  return `<div class="badges">` + STAGES.map(s=>
+    `<span class="bdg ${S.won.includes(s.id)?"won":""}">${s.chip}</span>`).join("") + `</div>`;
+}
+
+function lose(c){
+  stopTimer();
+  el.phone.hidden = true;
+  Music.stopAll();
+  const why = c.why || "Sumama ka sa taong hindi kilala ng magulang mo.";
+  if(!S.opts.scare){ teachCard(why); return; }
+
+  el.lose.hidden = false;
+  refreshNav();
+  el.abducted.classList.remove("on");
+  el.shatter.style.opacity = 0;
+  el.cracks.innerHTML = "";
+  el.monster.innerHTML = monsterSVG();
+  setMonster("");
+
+  Music.boom();
+  // 1. thunder flashes
+  let n = 0;
+  const thunder = setInterval(()=>{
+    el.bolt.style.background = n % 2 ? "#fff" : "#000";
+    el.bolt.style.opacity = n % 2 ? .85 : 0;
+    n++;
+    if(n > 5){ clearInterval(thunder); el.bolt.style.opacity = 0; }
+  }, 95);
+
+  // 2. monster reveal
+  setTimeout(()=>{ setMonster("in"); }, 620);
+  setTimeout(()=>{ setMonster("shown"); }, 1130);
+
+  // 3. lunges + cracks
+  const lunges = [1150, 1750, 2350, 2950];
+  lunges.forEach((t,i)=>{
+    setTimeout(()=>{
+      setMonster("shown lunge");
+      el.lose.classList.add("shake");
+      Music.hit();
+      addCracks(i + 1);
+      setTimeout(()=>{
+        setMonster("shown");
+        el.lose.classList.remove("shake");
+      }, 430);
+    }, t);
+  });
+
+  // 4. shatter + title
+  setTimeout(()=>{
+    el.shatter.style.opacity = 1;
+    el.abducted.classList.add("on");
+    Music.hit();
+  }, 3480);
+
+  // 5. teach
+  setTimeout(()=>{ el.lose.hidden = true; teachCard(why); }, 5600);
+}
+
+function setMonster(cls){ el.monster.setAttribute("class", cls); }
+
+function addCracks(wave){
+  const cx = 200, cy = 300;
+  const svgns = "http://www.w3.org/2000/svg";
+  for(let i=0;i<5;i++){
+    let d = `M${cx} ${cy}`;
+    let x = cx, y = cy;
+    const ang = Math.random() * Math.PI * 2;
+    let a = ang;
+    for(let j=0;j<6;j++){
+      a += (Math.random()-.5) * 1.0;
+      const len = 42 + Math.random()*70;
+      x += Math.cos(a)*len; y += Math.sin(a)*len;
+      d += ` L${x.toFixed(0)} ${y.toFixed(0)}`;
+    }
+    const p = document.createElementNS(svgns,"path");
+    p.setAttribute("d", d);
+    p.setAttribute("stroke-width", String(Math.max(1.2, 4 - wave*.5)));
+    el.cracks.appendChild(p);
+  }
+}
+
+function monsterSVG(){
+  return `<g stroke="#000" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="100" cy="180" rx="62" ry="86" fill="#2A0410"/>
+    <path d="M38 176 L12 250 L44 226 Z" fill="#2A0410"/>
+    <path d="M162 176 L188 250 L156 226 Z" fill="#2A0410"/>
+    <ellipse cx="100" cy="84" rx="58" ry="62" fill="#3A0716"/>
+    <path d="M42 46 L58 4 L76 42 L100 -4 L124 42 L142 4 L158 46 Z" fill="#3A0716"/>
+    <g stroke="none">
+      <ellipse cx="74" cy="74" rx="17" ry="12" fill="#FF1414"/>
+      <ellipse cx="126" cy="74" rx="17" ry="12" fill="#FF1414"/>
+      <ellipse cx="74" cy="74" rx="6" ry="9" fill="#FFF0A0"/>
+      <ellipse cx="126" cy="74" rx="6" ry="9" fill="#FFF0A0"/>
+    </g>
+    <path d="M56 112 L74 132 L86 112 L100 134 L114 112 L126 132 L144 112 L136 146 Q100 166 64 146 Z" fill="#12000A"/>
+    <path d="M60 116 L68 128 L76 116 M84 118 L92 130 L100 118 M108 116 L116 128 L124 116"
+          stroke="#FFF0E0" stroke-width="3" fill="none"/>
+    <path d="M40 150 L4 196 L34 188 Z" fill="#3A0716"/>
+    <path d="M160 150 L196 196 L166 188 Z" fill="#3A0716"/>
+  </g>`;
+}
+
+function teachCard(why){
+  Music.resumeBed();
+  Music.setTension(1);
+  const st = STAGES[S.stage];
+  el.result.innerHTML = `
+    <div class="card teach">
+      <h2 class="kicker">WHAT SHOULD YOU DO?</h2>
+      <p class="lesson">${why}</p>
+      <div class="quote"><b>REMEMBER</b>The right answer is always the same: <strong>don't go with them — and call Daddy, Honey Bee, or 911.</strong></div>
+      ${badgeRow()}
+      <button class="bigbtn" id="retry">TRY ${st.chip} AGAIN</button>
+    </div>`;
+  el.result.hidden = false;
+  $("retry").addEventListener("click", ()=>{
+    el.result.hidden = true;
+    S.beat = 0; S.sos = false;
+    setTension(1);
+    showIntro();
+  });
+  refreshNav();
+}
+
+function finale(){
+  stopTimer();
+  Music.setTension(1);
+  Music.stinger("win");
+  el.result.innerHTML = `
+    <div class="card good">
+      <h2 class="kicker" style="color:var(--mango)">SEBASTIAN<br>STRANGER-SAFE CHAMPION</h2>
+      <p class="lesson">Six places. Six strangers. Not one of them fooled you.</p>
+      <div class="quote"><b>THE THREE RULES</b>
+        1. Don't go with them, don't open the door, don't take anything.<br>
+        2. Ask Mommy or Daddy first. Every single time.<br>
+        3. Call. You know the numbers by heart.</div>
+      <div class="quote"><b>NO BAD SECRETS</b>If anyone ever tells you “this is our secret, don't tell Mommy” — tell Mommy or Daddy straight away.</div>
+      ${badgeRow()}
+      <button class="bigbtn" id="again">PLAY AGAIN</button>
+    </div>`;
+  el.result.hidden = false;
+  $("again").addEventListener("click", ()=>{
+    S.won = []; save();
+    el.result.hidden = true;
+    S.stage = 0; S.beat = 0;
+    Music.setRoot(ROOTS[STAGES[0].scene]);
+    showIntro();
+  });
+  refreshNav();
+}
+
+/* =========================================================
+   SETTINGS / BOOT
+   ========================================================= */
+function syncToggles(){
+  $("tglMusic").setAttribute("aria-checked", String(S.opts.music));
+  $("tglScare").setAttribute("aria-checked", String(S.opts.scare));
+  $("tglTimer").setAttribute("aria-checked", String(S.opts.timer));
+}
+function toggle(id, key, after){
+  $(id).addEventListener("click", ()=>{
+    S.opts[key] = !S.opts[key];
+    syncToggles(); save();
+    if(after) after();
+  });
+}
+
+function beginGame(){
+  el.title.hidden = true;
+  el.hud.hidden = false;
+  el.wrap.hidden = false;
+  el.panel.hidden = false;
+  Music.start();
+  Music.mute(S.opts.music);
+  let n = STAGES.findIndex(s=> !S.won.includes(s.id));
+  if(n < 0){ S.won = []; n = 0; }
+  S.stage = n; S.beat = 0;
+  Music.setRoot(ROOTS[STAGES[n].scene]);
+  showIntro();
+}
+
+function parentNote(){
+  el.result.innerHTML = `
+    <div class="card">
+      <h2 class="kicker" style="color:var(--sky);font-size:25px">FOR PARENTS</h2>
+      <p class="lesson">The game is deliberately <strong>not scary for the sake of it</strong> — but the tension is real, because a real stranger does not look dangerous at the start. Six strangers, six different tactics: your name, food, a pet, a uniform, a fake emergency, faith, and plain old <em>hiya</em>.</p>
+      <div class="quote"><b>SETTINGS</b>Under the gear icon you can switch off <strong>Full Scare</strong> (no monster, no cracked screen), the <strong>countdown</strong>, and the <strong>music</strong>.</div>
+      <div class="quote"><b>TWO THINGS TO DO IN REAL LIFE</b>
+        1. Pick a family <strong>CODE WORD</strong>. The game keeps referring to it — Sebastian should have a real one to name.<br>
+        2. Practise <strong>dialling from memory</strong> on an actual phone, not only in here.</div>
+      <p class="lesson" style="font-size:13px;color:#B8ACCC">Your real numbers are inside this game. Worth a thought before sharing the link.</p>
+      <button class="bigbtn" id="closeparent">CLOSE</button>
+    </div>`;
+  el.result.hidden = false;
+  $("closeparent").addEventListener("click", ()=>{ el.result.hidden = true; refreshNav(); });
+  refreshNav();
+}
+
+/* =========================================================
+   D-PAD / GAMEPAD / KEYBOARD NAVIGATION
+   Handhelds (Anbernic and friends) have no touchscreen, so
+   every screen exposes a focus ring you can drive with a
+   D-pad: A confirms, B backs out, START opens settings.
+   ========================================================= */
+const NAV = { list:[], cols:1, i:0, on:false };
+
+function setNav(list, cols){
+  NAV.list = (list || []).filter(Boolean);
+  NAV.cols = cols || 1;
+  NAV.i = 0;
+  NAV.list.forEach((e,k)=>{
+    if(e._navBound) return;
+    e._navBound = true;
+    e.addEventListener("pointerenter", ()=>{
+      const j = NAV.list.indexOf(e);
+      if(j >= 0){ NAV.i = j; paintNav(); }
+    });
+  });
+  paintNav();
+}
+function paintNav(){
+  NAV.list.forEach((e,k)=> e.classList.toggle("sel", NAV.on && k === NAV.i));
+  const cur = NAV.list[NAV.i];
+  if(NAV.on && cur && cur.scrollIntoView){
+    try{ cur.scrollIntoView({block:"nearest", inline:"nearest"}); }catch(e){}
+  }
+}
+function navMove(dx, dy){
+  const n = NAV.list.length;
+  if(!n) return;
+  if(!NAV.on){ NAV.on = true; paintNav(); return; }
+  const cols = NAV.cols, rows = Math.ceil(n / cols);
+  let r = Math.floor(NAV.i / cols), c = NAV.i % cols;
+  if(dx) c = (c + dx + cols) % cols;
+  if(dy) r = (r + dy + rows) % rows;
+  let i = r * cols + c;
+  while(i >= n) i -= cols;
+  NAV.i = Math.max(0, i);
+  paintNav();
+}
+function navPick(){
+  if(!NAV.list.length) return;
+  if(!NAV.on){ NAV.on = true; paintNav(); return; }
+  const e = NAV.list[NAV.i];
+  if(e) e.click();
+}
+function navBack(){
+  if(!el.lose.hidden) return;
+  if(!el.phone.hidden){ closePhone(); return; }
+  if(!el.settings.hidden){ el.settings.hidden = true; refreshNav(); return; }
+}
+function refreshNav(){
+  if(!el.lose.hidden){ setNav([], 1); return; }
+  if(!el.settings.hidden){
+    setNav([$("tglMusic"), $("tglScare"), $("tglTimer"), $("restartbtn"), $("closeset")], 1);
+    return;
+  }
+  if(!el.phone.hidden){
+    setNav([...el.keys.children, $("hintbtn"), $("callbtn"), $("hangbtn")], 3);
+    return;
+  }
+  if(!el.result.hidden){ setNav([...el.result.querySelectorAll("button")], 1); return; }
+  if(!el.title.hidden){ setNav([$("startbtn"), $("parentbtn")], 1); return; }
+  setNav([...el.choices.children], 1);
+}
+
+/* gamepad polling — edge-triggered so a held D-pad doesn't run away */
+const gpPrev = {};
+function pollPad(){
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for(const gp of pads){
+    if(!gp) continue;
+    const ax = gp.axes || [], bt = gp.buttons || [];
+    const on = i => !!(bt[i] && bt[i].pressed);
+    const st = {
+      up:    on(12) || (ax[1] < -0.55),
+      down:  on(13) || (ax[1] >  0.55),
+      left:  on(14) || (ax[0] < -0.55),
+      right: on(15) || (ax[0] >  0.55),
+      a: on(0), b: on(1), start: on(9)
+    };
+    const pv = gpPrev[gp.index] || {};
+    if(st.up && !pv.up) navMove(0,-1);
+    if(st.down && !pv.down) navMove(0,1);
+    if(st.left && !pv.left) navMove(-1,0);
+    if(st.right && !pv.right) navMove(1,0);
+    if(st.a && !pv.a){ unlockAudio(); navPick(); }
+    if(st.b && !pv.b) navBack();
+    if(st.start && !pv.start){
+      if(el.lose.hidden && el.phone.hidden){
+        el.settings.hidden = !el.settings.hidden;
+        refreshNav();
+      }
+    }
+    gpPrev[gp.index] = st;
+  }
+  requestAnimationFrame(pollPad);
+}
+requestAnimationFrame(pollPad);
+
+/* ---------- sound button + autoplay unlock ---------- */
+const SND_ON = `<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.4 8.6a5 5 0 0 1 0 6.8"/><path d="M18.4 5.6a9 9 0 0 1 0 12.8"/></svg>`;
+const SND_OFF = `<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
+function paintSound(){
+  const b = $("sndbtn");
+  if(!b) return;
+  const running = !!(Music.ctx && Music.ctx.state === "running");
+  b.innerHTML = S.opts.music ? SND_ON : SND_OFF;
+  b.classList.toggle("off", !S.opts.music);
+  b.classList.toggle("needtap", S.opts.music && !running);
+}
+function unlockAudio(){
+  Music.init();
+  if(Music.ctx && Music.ctx.state !== "running"){
+    try{
+      Music.ctx.resume().then(()=>{
+        if(Music.started) Music.resumeBed();
+        paintSound();
+      }).catch(()=>{});
+    }catch(e){}
+  }
+  paintSound();
+}
+document.addEventListener("pointerdown", unlockAudio, true);
+document.addEventListener("keydown", unlockAudio, true);
+setInterval(paintSound, 1500);
+
+/* wire up */
+load();
+syncToggles();
+buildKeys();
+paintDial();
+paintSound();
+refreshNav();
+
+$("sndbtn").addEventListener("click", ()=>{
+  S.opts.music = !S.opts.music;
+  Music.mute(S.opts.music);
+  syncToggles(); save(); paintSound();
+});
+
+$("startbtn").addEventListener("click", ()=>{ Music.init(); Music.start(); beginGame(); });
+$("parentbtn").addEventListener("click", parentNote);
+$("setbtn").addEventListener("click", ()=>{ el.settings.hidden = false; refreshNav(); });
+$("closeset").addEventListener("click", ()=>{ el.settings.hidden = true; refreshNav(); });
+$("restartbtn").addEventListener("click", ()=>{
+  S.won = []; save();
+  el.settings.hidden = true; el.result.hidden = true;
+  NAV.on = false;
+  S.stage = 0; S.beat = 0;
+  Music.setRoot(ROOTS[STAGES[0].scene]);
+  showIntro();
+});
+$("hintbtn").addEventListener("click", hint);
+$("callbtn").addEventListener("click", call);
+$("hangbtn").addEventListener("click", closePhone);
+
+toggle("tglMusic","music", ()=>{ Music.mute(S.opts.music); paintSound(); });
+toggle("tglScare","scare");
+toggle("tglTimer","timer", ()=>{ if(!S.opts.timer) stopTimer(); });
+
+document.addEventListener("keydown", e=>{
+  const k = e.key;
+  /* a real keyboard can type the number straight into the phone */
+  if(!el.phone.hidden){
+    if(/^[0-9]$/.test(k)){ press(k); return; }
+    if(k === "Backspace"){ press("DEL"); e.preventDefault(); return; }
+  }
+  if(k === "ArrowUp"    || k === "w" || k === "W"){ navMove(0,-1); e.preventDefault(); }
+  else if(k === "ArrowDown"  || k === "s" || k === "S"){ navMove(0,1); e.preventDefault(); }
+  else if(k === "ArrowLeft"  || k === "a" || k === "A"){ navMove(-1,0); e.preventDefault(); }
+  else if(k === "ArrowRight" || k === "d" || k === "D"){ navMove(1,0); e.preventDefault(); }
+  else if(k === "Enter" || k === " " || k === "z" || k === "Z"){ navPick(); e.preventDefault(); }
+  else if(k === "Escape" || k === "x" || k === "X"){ navBack(); e.preventDefault(); }
+});
+
+/* carry state across a republish */
+try{
+  const boot = d => {
+    if(d && d.started){
+      S.stage = d.stage||0; S.beat = d.beat||0; S.won = d.won||[];
+      Object.assign(S.opts, d.opts||{});
+      syncToggles();
+      beginGame();
+    }
+  };
+  window.claude?.hot?.snapshot?.(()=>({
+    started: el.title.hidden, stage:S.stage, beat:S.beat, won:S.won, opts:S.opts
+  }));
+  if(window.claude?.hot?.ready) window.claude.hot.ready(boot);
+}catch(e){}
+</script>
+
+</body>
+</html>
