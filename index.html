@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Stranger-danger training game for Sebastian. Six places, six strangers, one phone he has to dial from memory.">
 <style>
-  /* standalone shell — matches the hosted build's page reset */
   :root{
     color-scheme:dark;
     padding-top:env(safe-area-inset-top, 0px);
@@ -18,7 +17,6 @@
   body{margin:0; background:#120E1C; overscroll-behavior:none}
   img{max-width:100%}
   [hidden]{display:none!important}
-  /* handhelds: no text selection, no callouts, no pinch zoom artefacts */
   *{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
 </style>
 </head>
@@ -77,7 +75,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   overflow:hidden;
 }
 .halftone{
-  position:absolute; inset:0; pointer-events:none; z-index:1;
+  position:absolute; top:0;right:0;bottom:0;left:0; pointer-events:none; z-index:1;
   background-image:radial-gradient(rgba(255,238,218,.16) 1px, transparent 1px);
   background-size:7px 7px;
   opacity:.28;
@@ -86,7 +84,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 /* ---------- title screen ---------- */
 #title{
-  position:absolute; inset:0; z-index:40;
+  position:absolute; top:0;right:0;bottom:0;left:0; z-index:40;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:14px; padding:24px 20px;
   background:
@@ -184,9 +182,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   overflow:hidden;
   background:#0C0916;
 }
-#scene{position:absolute; inset:0; width:100%; height:100%; display:block}
+#scene{position:absolute; top:0;right:0;bottom:0;left:0; width:100%; height:100%; display:block}
 #flash{
-  position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:7;
+  position:absolute; top:0;right:0;bottom:0;left:0; background:#fff; opacity:0; pointer-events:none; z-index:7;
 }
 .sidelab{
   position:absolute; top:10px; z-index:6; display:none;
@@ -202,7 +200,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #labIn{left:10px; background:var(--mango); color:var(--edge)}
 #labOut{right:10px; background:var(--sky); color:var(--edge); text-align:right}
 #vignette{
-  position:absolute; inset:0; pointer-events:none; z-index:4;
+  position:absolute; top:0;right:0;bottom:0;left:0; pointer-events:none; z-index:4;
   box-shadow:inset 0 0 90px 24px rgba(5,3,10,.85);
   transition:box-shadow .5s;
 }
@@ -250,12 +248,13 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 /* ---------- choices ---------- */
 #choices{
   position:relative; z-index:6; flex:0 0 auto;
-  display:flex; flex-direction:column; gap:7px;
+  display:flex; flex-direction:column;
   padding:14px 14px calc(12px + env(safe-area-inset-bottom,0px));
   background:var(--ink);
 }
+#choices > * + *{margin-top:7px}
 .choice{
-  display:flex; align-items:center; gap:10px; text-align:left; width:100%;
+  display:flex; align-items:center; text-align:left; width:100%;
   background:var(--panel); color:var(--bone);
   border:3px solid var(--edge); border-radius:12px;
   padding:10px 13px; font-size:14.5px; font-weight:700; line-height:1.35;
@@ -265,7 +264,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .choice:hover{background:var(--panel2)}
 .choice:active{transform:translateY(3px); box-shadow:0 1px 0 var(--edge)}
 .choice .tag{
-  flex:0 0 auto; width:26px; height:26px; border-radius:7px;
+  flex:0 0 auto; margin-right:10px; width:26px; height:26px; border-radius:7px;
   display:grid; place-items:center; border:2.5px solid var(--edge);
   font-family:var(--disp); font-size:13px; color:var(--edge); padding-top:2px;
 }
@@ -293,7 +292,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 /* ---------- phone ---------- */
 #phone{
-  position:absolute; inset:0; z-index:60;
+  position:absolute; top:0;right:0;bottom:0;left:0; z-index:60;
   background:rgba(4,3,9,.88);
   display:flex; align-items:center; justify-content:center; padding:16px;
   backdrop-filter:blur(3px);
@@ -323,7 +322,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #phmsg.bad{color:var(--sili)}
 .keys{display:grid; grid-template-columns:repeat(3,1fr); gap:7px}
 .key{
-  aspect-ratio:1/.62; border:3px solid var(--edge); border-radius:11px;
+  aspect-ratio:1/.62; min-height:40px; border:3px solid var(--edge); border-radius:11px;
   background:var(--panel2); font-family:var(--mono); font-size:20px; color:var(--bone);
   box-shadow:0 4px 0 var(--edge); display:grid; place-items:center;
   transition:transform .06s, box-shadow .06s;
@@ -332,7 +331,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .key.act{background:var(--calamansi); color:var(--edge)}
 .key.del{background:#6B3A3A; font-size:12px; font-family:var(--disp); letter-spacing:.5px}
 .key.sos{background:var(--sili); color:#fff; font-family:var(--disp); font-size:14px}
-.phrow{display:flex; gap:7px; margin-top:9px}
+.phrow{display:flex; margin-top:9px}
+.phrow > * + *{margin-left:7px}
 .phrow button{
   flex:1; border:3px solid var(--edge); border-radius:11px; padding:9px 0;
   font-family:var(--disp); font-size:14px; letter-spacing:.6px;
@@ -345,7 +345,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 /* ---------- result card ---------- */
 #result{
-  position:absolute; inset:0; z-index:70;
+  position:absolute; top:0;right:0;bottom:0;left:0; z-index:70;
   display:flex; align-items:center; justify-content:center; padding:20px;
   background:rgba(4,3,9,.93); overflow-y:auto;
 }
@@ -380,7 +380,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 /* ---------- lose sequence ---------- */
 #lose{
-  position:absolute; inset:0; z-index:80;
+  position:absolute; top:0;right:0;bottom:0;left:0; z-index:80;
   background:#000; overflow:hidden;
 }
 #lose[hidden]{display:none!important}
@@ -406,26 +406,26 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   40%{transform:translate(8px,-7px)} 60%{transform:translate(-6px,-5px)}
   80%{transform:translate(7px,6px)} 100%{transform:translate(0,0)}
 }
-#bolt{position:absolute; inset:0; opacity:0; pointer-events:none}
-#cracks{position:absolute; inset:0; pointer-events:none}
+#bolt{position:absolute; top:0;right:0;bottom:0;left:0; opacity:0; pointer-events:none}
+#cracks{position:absolute; top:0;right:0;bottom:0;left:0; pointer-events:none}
 #cracks path{
   stroke:#EFF4FF; fill:none; stroke-linecap:round;
   filter:drop-shadow(0 0 3px rgba(150,200,255,.9));
 }
 #shatter{
-  position:absolute; inset:0; opacity:0; pointer-events:none;
+  position:absolute; top:0;right:0;bottom:0;left:0; opacity:0; pointer-events:none;
   background:
     linear-gradient(115deg, rgba(255,255,255,.14) 0 2px, transparent 2px 60px),
     linear-gradient(-35deg, rgba(255,255,255,.12) 0 2px, transparent 2px 48px);
 }
 #abducted{
-  position:absolute; inset:0; display:none;
+  position:absolute; top:0;right:0;bottom:0;left:0; display:none;
   flex-direction:column; align-items:center; justify-content:center; gap:12px;
   padding:22px; text-align:center;
 }
 #abducted.on{display:flex}
 #abducted::before{
-  content:""; position:absolute; inset:0;
+  content:""; position:absolute; top:0;right:0;bottom:0;left:0;
   background:radial-gradient(ellipse at 50% 55%, rgba(0,0,0,.8) 0%, rgba(0,0,0,.5) 45%, transparent 80%);
 }
 #abducted h2, #abducted p{position:relative}
@@ -445,7 +445,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 /* ---------- settings ---------- */
 #settings{
-  position:absolute; inset:0; z-index:75;
+  position:absolute; top:0;right:0;bottom:0;left:0; z-index:75;
   background:rgba(4,3,9,.92); display:flex; align-items:center; justify-content:center; padding:20px;
   overflow-y:auto;
 }
@@ -468,6 +468,13 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .tgl[aria-checked="true"]{background:var(--calamansi)}
 .tgl[aria-checked="true"]::after{transform:translateX(26px)}
 
+#crash{
+  position:fixed; left:0; right:0; bottom:0; z-index:9999; display:none;
+  background:#7A0A0A; color:#FFE9E9; padding:10px 12px;
+  border-top:3px solid #FF4A4A;
+  font:700 11.5px/1.5 "Trebuchet MS", system-ui, sans-serif;
+  white-space:pre-wrap; word-break:break-word;
+}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :focus-visible{outline:3px solid var(--sky); outline-offset:2px}
 
@@ -517,9 +524,11 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   #who{font-size:11px}
   #balloon{padding:8px 11px 9px; border-width:3px; box-shadow:4px 4px 0 var(--edge)}
   #talk{padding:9px 11px 3px}
-  .choice{font-size:12.5px; padding:7px 10px; border-width:2.5px; gap:8px; box-shadow:0 3px 0 var(--edge)}
+  .choice{font-size:12.5px; padding:7px 10px; border-width:2.5px; box-shadow:0 3px 0 var(--edge)}
+  .choice .tag{margin-right:8px}
   .choice .tag{width:22px; height:22px; font-size:11px; border-width:2px}
-  #choices{gap:5px; padding:10px 11px calc(9px + env(safe-area-inset-bottom,0px))}
+  #choices{padding:10px 11px calc(9px + env(safe-area-inset-bottom,0px))}
+  #choices > * + *{margin-top:5px}
   #hud{padding:6px 10px 5px; gap:7px}
   .chip{font-size:10.5px; padding:4px 8px 2px; border-width:2px}
   .iconbtn{width:27px; height:27px; border-width:2px}
@@ -537,9 +546,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   #dialed{font-size:17px; min-height:21px}
   #phmsg{font-size:10px}
   .keys{gap:5px}
-  .key{aspect-ratio:1/.52; font-size:16px; border-width:2.5px; border-radius:9px; box-shadow:0 3px 0 var(--edge)}
+  .key{aspect-ratio:1/.52; min-height:34px; font-size:16px; border-width:2.5px; border-radius:9px; box-shadow:0 3px 0 var(--edge)}
   .key.del{font-size:10px} .key.sos{font-size:12px}
-  .phrow{margin-top:7px; gap:5px}
+  .phrow{margin-top:7px}
+  .phrow > * + *{margin-left:5px}
   .phrow button{padding:7px 0; font-size:11.5px; border-width:2.5px}
   #hintbtn{flex:1}
   .card{padding:14px 13px; border-radius:16px}
@@ -568,12 +578,13 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   #say{font-size:12px; line-height:1.34}
   .choice{font-size:11px; padding:5px 8px; box-shadow:0 2px 0 var(--edge)}
   .choice .tag{width:19px; height:19px; font-size:10px}
-  #choices{gap:4px; padding:7px 9px}
+  #choices{padding:7px 9px}
+  #choices > * + *{margin-top:4px}
   #talk{padding:7px 9px 2px}
   #balloon{padding:6px 9px 7px}
   #hud{padding:4px 8px 3px}
   .handset{max-width:216px; padding:8px}
-  .key{aspect-ratio:1/.46; font-size:14px}
+  .key{aspect-ratio:1/.46; min-height:28px; font-size:14px}
   #title .rules{display:none}
   #title h1{font-size:clamp(24px,7vw,36px)}
   #title .blurb{font-size:11px}
@@ -696,8 +707,37 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   </div>
 </div>
 
+<div id="crash"></div>
+<script>
+/* Deliberately ES5 and in its own block: if the main script below fails to
+   parse on an older engine, this one has already run and will say so on
+   screen instead of leaving a dead START button. */
+(function(){
+  var shown = false;
+  function show(msg){
+    var d = document.getElementById("crash");
+    if(!d || shown) return;
+    shown = true;
+    d.style.display = "block";
+    d.textContent = "This browser could not run the game.\n" + msg +
+      "\n\nBrowser: " + (navigator.userAgent || "unknown");
+  }
+  window.addEventListener("error", function(e){
+    show((e && e.message ? e.message : "Unknown error") +
+         (e && e.lineno ? "  (line " + e.lineno + ")" : ""));
+  });
+  window.addEventListener("unhandledrejection", function(e){
+    show("Unhandled promise rejection: " + (e && e.reason ? e.reason : "unknown"));
+  });
+})();
+</script>
+
 <script>
 "use strict";
+
+/* Array-like -> real Array. NodeList, HTMLCollection and GamepadList are not
+   all iterable on older browser engines, so never spread them directly. */
+function toArray(x){ return Array.prototype.slice.call(x || []); }
 
 /* =========================================================
    NUMBERS
@@ -1414,7 +1454,7 @@ function setTension(t){
   S.tension = Math.max(1, Math.min(4, t));
   el.meter.dataset.t = S.tension;
   el.wrap.dataset.t = S.tension;
-  [...el.meter.querySelectorAll(".bar")].forEach((b,i)=> b.classList.toggle("on", i < S.tension));
+  toArray(el.meter.querySelectorAll(".bar")).forEach(function(b,i){ b.classList.toggle("on", i < S.tension); });
   Music.setTension(S.tension);
 }
 
@@ -1507,10 +1547,20 @@ function pick(c){
 }
 
 function flashScene(ms){
-  el.flash.animate(
-    [{opacity:0},{opacity:.45},{opacity:0}],
-    {duration: ms || 160, easing:"ease-out"}
-  );
+  /* Web Animations API is missing on older engines — fall back to a timed opacity blip */
+  if(typeof el.flash.animate === "function"){
+    el.flash.animate(
+      [{opacity:0},{opacity:.45},{opacity:0}],
+      {duration: ms || 160, easing:"ease-out"}
+    );
+    return;
+  }
+  el.flash.style.transition = "none";
+  el.flash.style.opacity = ".45";
+  setTimeout(function(){
+    el.flash.style.transition = "opacity " + ((ms || 160) / 1000) + "s ease-out";
+    el.flash.style.opacity = "0";
+  }, 16);
 }
 
 /* =========================================================
@@ -1915,19 +1965,20 @@ function refreshNav(){
     return;
   }
   if(!el.phone.hidden){
-    setNav([...el.keys.children, $("hintbtn"), $("callbtn"), $("hangbtn")], 3);
+    setNav(toArray(el.keys.children).concat([$("hintbtn"), $("callbtn"), $("hangbtn")]), 3);
     return;
   }
-  if(!el.result.hidden){ setNav([...el.result.querySelectorAll("button")], 1); return; }
+  if(!el.result.hidden){ setNav(toArray(el.result.querySelectorAll("button")), 1); return; }
   if(!el.title.hidden){ setNav([$("startbtn"), $("parentbtn")], 1); return; }
-  setNav([...el.choices.children], 1);
+  setNav(toArray(el.choices.children), 1);
 }
 
 /* gamepad polling — edge-triggered so a held D-pad doesn't run away */
 const gpPrev = {};
 function pollPad(){
-  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-  for(const gp of pads){
+  const pads = navigator.getGamepads ? toArray(navigator.getGamepads()) : [];
+  for(let gi = 0; gi < pads.length; gi++){
+    const gp = pads[gi];
     if(!gp) continue;
     const ax = gp.axes || [], bt = gp.buttons || [];
     const on = i => !!(bt[i] && bt[i].pressed);
@@ -2034,19 +2085,27 @@ document.addEventListener("keydown", e=>{
 });
 
 /* carry state across a republish */
+/* Hot-reload handoff, written without optional chaining: older browser
+   engines (the ones on handhelds) reject `?.` at PARSE time, which kills
+   the whole script and leaves the title screen with no working buttons. */
 try{
-  const boot = d => {
-    if(d && d.started){
-      S.stage = d.stage||0; S.beat = d.beat||0; S.won = d.won||[];
-      Object.assign(S.opts, d.opts||{});
-      syncToggles();
-      beginGame();
+  var hot = (typeof window.claude === "object" && window.claude) ? window.claude.hot : null;
+  if(hot){
+    var boot = function(d){
+      if(d && d.started){
+        S.stage = d.stage || 0; S.beat = d.beat || 0; S.won = d.won || [];
+        Object.assign(S.opts, d.opts || {});
+        syncToggles();
+        beginGame();
+      }
+    };
+    if(typeof hot.snapshot === "function"){
+      hot.snapshot(function(){
+        return { started: el.title.hidden, stage:S.stage, beat:S.beat, won:S.won, opts:S.opts };
+      });
     }
-  };
-  window.claude?.hot?.snapshot?.(()=>({
-    started: el.title.hidden, stage:S.stage, beat:S.beat, won:S.won, opts:S.opts
-  }));
-  if(window.claude?.hot?.ready) window.claude.hot.ready(boot);
+    if(typeof hot.ready === "function") hot.ready(boot);
+  }
 }catch(e){}
 </script>
 
